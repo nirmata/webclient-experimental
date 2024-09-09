@@ -1,9 +1,9 @@
 import React from 'react';
-import TMayBe from '../../../nirmata-model-schema/TMayBe';
-import { emptyFallbackValue } from '../../constants';
+import TMayBe from '../../nirmata-model-schema/TMayBe';
 import { TClassName } from '../../theme/types';
-import Typography, { TextProps } from '../typography';
 import getClassNames from '../../theme/get-class-names';
+import { Typography } from 'antd';
+import { TextProps } from 'antd/es/typography/Text';
 
 const gradeClassNames: Record<string, TClassName> = {
   A: 'n-success',
@@ -20,7 +20,7 @@ const Grade: React.FC<TextProps & { grade?: TMayBe<string> }> = ({ grade, ...pro
       className={getClassNames([gradeClassNames[(grade?.replace(/[^a-z]/ig, '') ?? 'UNKNOWN').toUpperCase()], 'n-font-size-lg'])}
       {...props}
     >
-      {(grade ?? emptyFallbackValue).toUpperCase()}
+      {(grade ?? "").toUpperCase()}
     </Typography.Text>
   );
 };

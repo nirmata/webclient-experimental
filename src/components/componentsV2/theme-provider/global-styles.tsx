@@ -1,5 +1,5 @@
 import React from 'react';
-import { TVariables } from '../../theme/types';
+import { TVariables } from '../../../theme/types';
 import GlobalAntDStyles from './global-antd-styles';
 import GlobalBackgroundStyles from './global-background-styles';
 import GlobalBorderStyles from './global-border-styles';

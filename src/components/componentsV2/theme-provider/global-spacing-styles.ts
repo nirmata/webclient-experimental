@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { TVariables } from "../../theme/types";
+import { TVariables } from "../../../theme/types";
 
 const GlobalSpacingStyles = createGlobalStyle<{ variables: TVariables }>`
 .n-m { margin: ${props => props.variables['spacing']}; }

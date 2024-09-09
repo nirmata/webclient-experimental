@@ -1,34 +1,105 @@
-import styled from 'styled-components';
-import { KpiGrade, KpiGradeLevel } from '../KpiGrade';
-import { StatusTag } from '../Tag';
-import { StatusTagVariant } from '../Tag/StatusTag';
-import { FC } from 'react';
+import styled from "styled-components";
+import { KpiGrade, KpiGradeLevel } from "../KpiGrade";
+import { StatusTag } from "../Tag";
+import { StatusTagVariant } from "../Tag/StatusTag";
+import { FC } from "react";
+import DataTestId from "../../data-test-id";
+import If from "../../if";
+import GreyDash from "./GreyDash";
 
-
-interface RepoStatusProps{
-  passed: number,
-  failed: number,
-  files: number,
-  grade: string,
-  lastScanTime: string,
+interface RepoStatusProps {
+  passed: number;
+  passPercent: number;
+  failed: number;
+  files: number;
+  grade: string;
+  lastScanTime: string | null;
+  remediationCount?: number;
+  loading?: boolean;
 }
 
-export const RepoStatus: FC<RepoStatusProps> = ({passed,failed,files, grade, lastScanTime}) => {
+export const RepoStatus: FC<RepoStatusProps> = ({
+  passPercent,
+  failed,
+  files,
+  grade,
+  lastScanTime,
+  remediationCount,
+  loading,
+}) => {
   return (
     <RepoStatusContainer>
       <KpiWrapper>
-        <KpiGrade grade={grade as KpiGradeLevel} />
-        <StatusTag size='MEDIUM' variant={'pass' as StatusTagVariant}>
-          {Math.round((passed/(files?files:1))*100)} %
-        </StatusTag>
-        <StatusTag size='MEDIUM' variant={'fail' as StatusTagVariant} >
-          {`${failed} of ${files}`}
-        </StatusTag>
+        <If condition={Boolean(!loading)}>
+          <If.True>
+            <DataTestId value={"grade"}>
+              {(dataTestId) => {
+                return (
+                  <div {...dataTestId}>
+                    {grade ? (
+                      <KpiGrade grade={grade as KpiGradeLevel} />
+                    ) : (
+                      <GreyDash />
+                    )}
+                  </div>
+                );
+              }}
+            </DataTestId>
+          </If.True>
+        </If>
+        <DataTestId value={"pass"}>
+          {(dataTestId) => {
+            return (
+              <StatusTag
+                style={{ padding: "15px " }}
+                size="MEDIUM"
+                variant={"pass" as StatusTagVariant}
+                {...dataTestId}
+              >
+                {`${passPercent} %`}
+              </StatusTag>
+            );
+          }}
+        </DataTestId>
+        <DataTestId value={"fail"}>
+          {(dataTestId) => {
+            return (
+              <StatusTag
+                style={{ padding: "15px " }}
+                size="MEDIUM"
+                variant={"fail" as StatusTagVariant}
+                {...dataTestId}
+              >
+                {`${failed} of ${files}`}
+              </StatusTag>
+            );
+          }}
+        </DataTestId>
+        {remediationCount ? (
+          <DataTestId value={"remediation-count"}>
+            {(dataTestId) => {
+              return (
+                <StatusTag
+                  style={{ padding: "15px " }}
+                  size="MEDIUM"
+                  variant={"remediation" as StatusTagVariant}
+                  {...dataTestId}
+                >
+                  {remediationCount}
+                </StatusTag>
+              );
+            }}
+          </DataTestId>
+        ) : (
+          <></>
+        )}
       </KpiWrapper>
 
-      <StatusTag size='SMALL' variant={'Default' as StatusTagVariant}>
-      Last updated {lastScanTime}
-      </StatusTag>
+      {lastScanTime ? (
+        <StatusTag size="SMALL" variant={"Default" as StatusTagVariant}>
+          Last scanned {lastScanTime}
+        </StatusTag>
+      ) : null}
     </RepoStatusContainer>
   );
 };
@@ -45,4 +116,3 @@ const KpiWrapper = styled.div`
   gap: 0.5rem;
   align-items: center;
 `;
-

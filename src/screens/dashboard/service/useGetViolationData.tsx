@@ -10,8 +10,8 @@ import {
   formatPercentage,
   getUniquekyes,
   convertToKFormat,
+  extractRepoName,
 } from "../utils/utils";
-import { extractRepoName } from "../../../components/repo-findings";
 import {
   CLOUD_PROVIDER_LOGOS,
   CLOUD_PROVIDER_NAMES,

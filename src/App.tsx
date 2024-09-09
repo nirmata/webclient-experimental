@@ -1,37 +1,9 @@
 import "./App.css";
 import LeftNavPanel from "./components/left-nav-panel";
 import "./App.css";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
 import Dashboard from "./screens/dashboard/dashboard";
 
 function App() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://devtest1/security/api/accounts?email=himanshu.malviya@nirmata.com"
-        );
-        if (!response.ok) {
-          throw new Error("response was not ok");
-        }
-        const responseData = await response.json();
-        setData(responseData.accounts[0]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-    return () => {};
-  }, []);
-  if (data) {
-    const jsonString = JSON.stringify(data);
-    console.log(data + "data");
-    Cookies.set("nirmata.session.userData", jsonString);
-  }
   return (
     <>
       <div style={{ display: "flex" }}>

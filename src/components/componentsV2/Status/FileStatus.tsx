@@ -3,49 +3,50 @@ import { StatusTag } from '../Tag';
 import { StatusTagVariant } from '../Tag/StatusTag';
 import { FC } from 'react';
 
-
 interface FileStatusProps {
-  passed: number,
-  failed: number,
-  warning: number,
-  error: number,
-  skipped: number,
-  lastScanTime: string,
+  passed: number;
+  failed: number;
+  warning: number;
+  error: number;
+  skipped: number;
+  lastScanTime: string | null;
 }
 
-export const FileStatus: FC<FileStatusProps> = ({ passed , failed, warning, error, skipped, lastScanTime}) => {
+export const FileStatus: FC<FileStatusProps> = ({ passed, failed, warning, error, skipped, lastScanTime }) => {
   return (
     <FileStatusContainer>
       <KpiWrapper>
-        <StatusTag size='MEDIUM' variant={StatusTagVariant.PASSED}>
+        <StatusTag style={{ padding: '15px ' }} size='MEDIUM' variant={StatusTagVariant.PASSED}>
           {passed}
         </StatusTag>
-        <StatusTag size='MEDIUM' variant={StatusTagVariant.FAILED} >
+        <StatusTag style={{ padding: '15px ' }} size='MEDIUM' variant={StatusTagVariant.FAILED}>
           {failed}
         </StatusTag>
-        <StatusTag size='MEDIUM' variant={StatusTagVariant.WARNING}>
+        <StatusTag style={{ padding: '15px ' }} size='MEDIUM' variant={StatusTagVariant.WARNING}>
           {warning}
         </StatusTag>
-        <StatusTag size='MEDIUM' variant={StatusTagVariant.ERROR}>
+        <StatusTag style={{ padding: '15px ' }} size='MEDIUM' variant={StatusTagVariant.ERROR}>
           {error}
         </StatusTag>
-        <StatusTag size='MEDIUM' variant={StatusTagVariant.SKIPPED} >
+        <StatusTag style={{ padding: '15px ' }} size='MEDIUM' variant={StatusTagVariant.SKIPPED}>
           {skipped}
         </StatusTag>
       </KpiWrapper>
-      
-      <StatusTag size='SMALL' variant={'Default' as StatusTagVariant}>
-      Last updated {lastScanTime}
-      </StatusTag>
+
+      {lastScanTime ? (
+        <StatusTag size='SMALL' variant={'Default' as StatusTagVariant}>
+          Last updated {lastScanTime}
+        </StatusTag>
+      ) : null}
     </FileStatusContainer>
   );
 };
 
 const FileStatusContainer = styled.div`
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 `;
 
 const KpiWrapper = styled.div`
@@ -53,4 +54,3 @@ const KpiWrapper = styled.div`
   gap: 0.5rem;
   align-items: center;
 `;
-

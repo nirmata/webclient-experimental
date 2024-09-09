@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { TVariables } from "../../theme/types";
+import { TVariables } from "../../../theme/types";
 
 const GlobalRootStyles = createGlobalStyle<{ variables: TVariables }>`
   * { margin: 0; padding: 0; }

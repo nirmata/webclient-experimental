@@ -1,10 +1,8 @@
 import React from 'react';
-import { TagProps } from 'antd/es/tag';
-import TMayBe from '../../../nirmata-model-schema/TMayBe';
-import { emptyFallbackValue } from '../../constants';
-import Tag from '../tag';
-import Tooltip from '../tooltip';
+import Tag, { TagProps } from 'antd/es/tag';
 import getClassNames from '../../theme/get-class-names';
+import { Tooltip } from 'antd';
+import TMayBe from '../connector/TMayBe';
 
 const resourceKindShortNameRecord: Record<string, string> = {
   deployment: 'deploy',
@@ -40,7 +38,7 @@ const resourceKindShortNameRecord: Record<string, string> = {
 type TResourceKindTag = TagProps & { kind?: TMayBe<string> };
 
 const ResourceKindTag: React.FC<TResourceKindTag> = ({ kind, ...props }) => {
-  let resourceKindShortHand = kind ? resourceKindShortNameRecord[kind.toLowerCase()] : emptyFallbackValue;
+  let resourceKindShortHand = kind ? resourceKindShortNameRecord[kind.toLowerCase()] : "";
   if (kind?.startsWith('ecs')) resourceKindShortHand = 'ecs';
 
   return (

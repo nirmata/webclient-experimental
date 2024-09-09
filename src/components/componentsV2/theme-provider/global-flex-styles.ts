@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { TVariables } from "../../theme/types";
+import { TVariables } from "../../../theme/types";
 
 const GlobalFlexStyles = createGlobalStyle<{ variables: TVariables }>`
   .n-flex { display: flex; }

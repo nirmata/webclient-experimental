@@ -1,1 +1,0 @@
-export { FindingsFilters } from './FindingsFilters';

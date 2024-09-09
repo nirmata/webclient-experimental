@@ -4,6 +4,7 @@ import { TPolicyReportResultDataData_Status as TPolicyReportResultData_Status_Po
 import TMayBe from "../connector/TMayBe";
 import { Tag } from "antd";
 import ThemeContext from "./theme-provider/theme-context";
+import capitalize from "../policy-report/capitalize";
 
 type StatusTypes =
   | "pass"

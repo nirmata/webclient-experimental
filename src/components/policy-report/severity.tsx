@@ -1,8 +1,7 @@
-import TMayBe from '../../../nirmata-model-schema/TMayBe';
-import { emptyFallbackValue } from '../../constants';
-import { TClassName } from '../../theme/types';
-import capitalize from '../../utils/capitalize';
-import Typography from '../typography';
+import { Typography } from "antd";
+import { TClassName } from "../../theme/types";
+import TMayBe from "../connector/TMayBe";
+import capitalize from "./capitalize";
 
 const severityClassNames: Record<string, TClassName> = {
   'critical': 'n-danger-8',
@@ -16,7 +15,7 @@ export const Severity: React.FC<{ severity?: TMayBe<string> }> = ({ severity }) 
 
   return (
     <Typography.Text className={lowerCaseValue ? severityClassNames[lowerCaseValue] : undefined}>
-      {capitalize(severity ?? emptyFallbackValue)}
+      {capitalize(severity ?? "")}
     </Typography.Text>
   );
 };

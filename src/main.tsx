@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import UserSettingsSection from "./components/profle/profile.tsx";
+import UserSettingsSection from "./components/profile/profile.tsx";
 import Header from "./components/header/header.tsx";
 import { RecoilRoot } from "recoil";
 

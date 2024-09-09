@@ -1,8 +1,8 @@
 import ConfigProvider, { ThemeConfig } from 'antd/es/config-provider';
 import React, { useMemo } from 'react';
-import { TMode, TThemeConfigurationVariables, TVariables } from '../../theme/types';
-import darkThemeVariables from '../../theme/variables/dark';
-import lightThemeVariables from '../../theme/variables/light';
+import { TMode, TThemeConfigurationVariables, TVariables } from '../../../theme/types';
+import darkThemeVariables from '../../../theme/variables/dark';
+import lightThemeVariables from '../../../theme/variables/light';
 import getAntDTheme from './get-antd-theme';
 import getVariables from './get-variables';
 import GlobalStyles from './global-styles';

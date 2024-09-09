@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import { TVariables } from "../../theme/types";
+import { TVariables } from "../../../theme/types";
 
 const GlobalBorderStyles = createGlobalStyle<{ variables: TVariables }>`
   .n-border { border: solid 1px ${props => props.variables['border.color']}; }

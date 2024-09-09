@@ -1,4 +1,4 @@
-import { TMode } from "../../theme/types";
+import { TMode } from "../../../theme/types";
 
 const gray1 = 'rgba(250,250,250,1)';
 const gray2 = 'rgba(245,245,245,1)';
