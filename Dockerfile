@@ -1,33 +1,36 @@
 # Stage 1: Build the project
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
+RUN npm ci --legacy-peer-deps
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
-
-# Copy the rest of the project files
 COPY . .
-
-# Build the Vite project
-RUN npm run build
+RUN npm run build --legacy-peer-deps
 
 # Stage 2: Serve the built project using nginx
 FROM nginx:stable-alpine
 
-# Create and set permissions for Nginx cache directory
-RUN mkdir -p /var/cache/nginx/client_temp && \
-    chown -R nginx:nginx /var/cache/nginx
+# Create and set permissions for Nginx directories
+RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx /etc/nginx/conf.d \
+    && chown -R nginx:nginx /var/cache/nginx /var/run /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html \
+    && chmod -R 755 /var/cache/nginx /var/run /var/log/nginx /etc/nginx/conf.d
+
+# Ensure nginx user can write to nginx.pid
+RUN touch /var/run/nginx.pid && chown nginx:nginx /var/run/nginx.pid
 
 # Copy the built files from the previous stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+# Copy the custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 8080
+EXPOSE 8080
+
+# Use nginx user to run the container
+USER nginx
 
 # Start nginx server
 CMD ["nginx", "-g", "daemon off;"]

@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: vite-app
-          image: vite-app:latest
-          imagePullPolicy: Never
+          image: ghcr.io/nirmata/webclient:dirty-testing-9
+          imagePullPolicy: Always
           ports:
             - containerPort: 80 # Container runs on port 80
 ---
