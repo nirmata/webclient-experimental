@@ -1,9 +1,38 @@
-import "./App.css";
+import Cookies from "js-cookie";
 import LeftNavPanel from "./components/left-nav-panel";
 import "./App.css";
 import Dashboard from "./screens/dashboard/dashboard";
+import { TUserData } from "./components/left-nav-panel/types";
+
+const fallbackUserData: TUserData = {
+  tenantType: "default",
+  product: "default",
+  role: "guest",
+  isActivated: false,
+  identityProvider: "default",
+  features: [],
+  tenantName: "default tenant",
+  name: "Guest",
+  tenantId: "0",
+  id: "guest",
+  isDisabled: false,
+  fullname: "Guest User",
+  tenantState: "inactive",
+  email: "guest@example.com",
+  numAccounts: 0,
+};
 
 function App() {
+  let userData: TUserData;
+
+  try {
+    const cookieData = Cookies.get("nirmata.session.userData");
+    userData = cookieData ? JSON.parse(cookieData) : fallbackUserData;
+  } catch (e) {
+    console.error("Error parsing userData from cookies:", e);
+    userData = fallbackUserData;
+  }
+
   return (
     <>
       <div style={{ display: "flex" }}>
@@ -20,34 +49,7 @@ function App() {
             productData={{
               isPolicyManagerProduct: true,
             }}
-            userData={{
-              tenantType: "GA2",
-              product: "Policy Manager Enterprise",
-              role: "admin",
-              isActivated: true,
-              identityProvider: "Local",
-              features: [
-                "configure-kyverno",
-                "upgrade-kyverno",
-                "image-verification",
-                "resource-events",
-                "kubeconfig-expiration",
-                "enable-security-role",
-                "auto-remediation",
-                "compliance-per-namespace",
-                "git-policy-set",
-                "auto-namespace-assignment",
-              ],
-              tenantName: "Nirmata-NPM-Atul",
-              name: "Himanshu Malviya",
-              tenantId: "61645ecf-e231-42b7-9ed9-e978297a7acf",
-              id: "3597d7d6-02c9-489b-b7b6-738db4b88d7e",
-              isDisabled: false,
-              fullname: "Himanshu Malviya",
-              tenantState: "enabled",
-              email: "himanshu.malviya@nirmata.com",
-              numAccounts: 1,
-            }}
+            userData={userData} 
             isSmallNav={false}
             hasOidcAccess={false}
             hashLocation={""}

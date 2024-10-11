@@ -16,7 +16,7 @@ export const useGetPolicyManagerMenuList = (featuresList: string[], userRole: st
   return [
     {
       id: 'dashboard_overview_menu',
-      route: 'webclient/#dashboards/overview',
+      route: '/webclient/dashboards/overview',
       title: 'Dashboard',
       component: DashboardOutlined,
       dataTestId: 'dashboard'

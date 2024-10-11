@@ -10,7 +10,7 @@ import { RecoilRoot } from "recoil";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter>
+      <BrowserRouter basename="/npm">
         <Header />
         <Routes>
           <Route path="/profile" element={<UserSettingsSection />} />
