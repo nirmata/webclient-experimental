@@ -1,22 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { createPublication, subscribe } from 'pusu';
-import { Tag } from 'antd';
+import React, { useEffect, useState } from "react";
+import { createPublication, subscribe } from "pusu";
+import { Tag } from "antd";
 
-import NMenu from '../menu';
-import DataTestId from '../data-test-id';
+import NMenu from "../menu";
+import DataTestId from "../data-test-id";
 
-import { filterMenu, findIdAndAncestors, findIdByRoute, getMenuConfig } from './panel-util';
-import { LeftNavPanelProps, MenuItem, TMenuItem } from './types';
-import { Link } from 'react-router-dom';
+import {
+  filterMenu,
+  findIdAndAncestors,
+  findIdByRoute,
+  getMenuConfig,
+} from "./panel-util";
+import { LeftNavPanelProps, MenuItem, TMenuItem } from "./types";
 
 export const toggleLeftNavPanelPub = createPublication();
-
 
 export const ImagesMenuItem = () => {
   return (
     <>
-      {'Images'}{' '}
-      <Tag style={{ borderRadius: '4px', marginLeft: '10px' }} color='#FA8C16' title='Preview'>
+      {"Images"}{" "}
+      <Tag
+        style={{ borderRadius: "4px", marginLeft: "10px" }}
+        color="#FA8C16"
+        title="Preview"
+      >
         Preview
       </Tag>
     </>
@@ -35,7 +42,7 @@ const getItem = (
     icon,
     children,
     label,
-    onClick
+    onClick,
   } as MenuItem;
 };
 
@@ -46,9 +53,13 @@ const getMenuItems = (input: TMenuItem[]): MenuItem[] => {
         getItem(
           <DataTestId value={`submenu-item-${subItem.title}`}>
             {(dataTestId) => (
-              <Link {...dataTestId} style={{ color: 'inherit', textDecoration: 'none' }} to={`${subItem.route}`}>
+              <a
+                {...dataTestId}
+                style={{ color: "inherit", textDecoration: "none" }}
+                href={`${subItem.route}`}
+              >
                 {subItem.title}
-              </Link>
+              </a>
             )}
           </DataTestId>,
           `${subItem.id}`,
@@ -59,37 +70,60 @@ const getMenuItems = (input: TMenuItem[]): MenuItem[] => {
       return getItem(
         <DataTestId value={`menu-item-title-${item.title}`}>
           {(dataTestId) => (
-            <Link {...dataTestId} style={{ color: 'inherit', textDecoration: 'none' }} to={`${item.route}`}>
+            <a
+              {...dataTestId}
+              style={{ color: "inherit", textDecoration: "none" }}
+              href={`${item.route}`}
+            >
               {item.title}
               {item.preview && (
-                <Tag style={{ borderRadius: '4px', marginLeft: '10px' }} color='#FA8C16' title='Preview'>
+                <Tag
+                  style={{ borderRadius: "4px", marginLeft: "10px" }}
+                  color="#FA8C16"
+                  title="Preview"
+                >
                   Preview
                 </Tag>
               )}
-            </Link>
+            </a>
           )}
         </DataTestId>,
         `${item.id}`,
-        item?.component ? <Link to={`${item.route}`}> {React.createElement(item.component)}</Link> : undefined,
+        item?.component ? (
+          <a href={`${item.route}`}>
+            {" "}
+            {React.createElement(item.component)}
+          </a>
+        ) : undefined,
         submenuItems
       );
     } else {
       return getItem(
         <DataTestId value={`menu-item-title-${item.title}`}>
           {(dataTestId) => (
-            <Link {...dataTestId} style={{ color: 'inherit', textDecoration: 'none' }} to={`${item.route}`}>
-              {' '}
+            <a
+              {...dataTestId}
+              style={{ color: "inherit", textDecoration: "none" }}
+              href={`${item.route}`}
+            >
+              {" "}
               {item.title}
               {item.preview && (
-                <Tag style={{ borderRadius: '4px', marginLeft: '10px' }} color='#FA8C16' title='Preview'>
+                <Tag
+                  style={{ borderRadius: "4px", marginLeft: "10px" }}
+                  color="#FA8C16"
+                  title="Preview"
+                >
                   Preview
                 </Tag>
               )}
-            </Link>
+            </a>
           )}
         </DataTestId>,
         item.id,
-        item?.component ? <Link to={`${item.route}`}>{React.createElement(item.component)} </Link> : undefined
+        item?.component ? (
+          <a href={`${item.route}`}>{React.createElement(item.component)} </a>
+        ) : undefined
       );
     }
   });
@@ -100,18 +134,26 @@ const LeftNavPanel: React.FC<LeftNavPanelProps> = ({
   productData,
   userData,
   hasOidcAccess,
-  hashLocation
+  hashLocation,
 }: LeftNavPanelProps) => {
   const { role, tenantType, product, features } = userData;
   const [collapsed, setCollapsed] = useState(false);
-  const [openKeys, setOpenKeys] = useState<string[]>(['policies_menu']);
+  const [openKeys, setOpenKeys] = useState<string[]>(["policies_menu"]);
 
   const toggleCollapsed = (isExpanded: boolean) => {
     setCollapsed(isExpanded);
   };
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const menuConfig = getMenuConfig(features, role, tenantType, product, hasClusterAccess, productData, hasOidcAccess);
+  const menuConfig = getMenuConfig(
+    features,
+    role,
+    tenantType,
+    product,
+    hasClusterAccess,
+    productData,
+    hasOidcAccess
+  );
   const finalMenuConfig = filterMenu(menuConfig);
   const finalItems = getMenuItems(finalMenuConfig);
 
@@ -122,28 +164,34 @@ const LeftNavPanel: React.FC<LeftNavPanelProps> = ({
 
   // handle menu mode small/large toggle
   useEffect(() => {
-    const unSubscribeToggleLeftNavPanelPub = subscribe(toggleLeftNavPanelPub, (isExpanded: boolean) => {
-      toggleCollapsed(isExpanded);
-      if (!isExpanded) {
-        const newOpenGroup = findIdAndAncestors(finalMenuConfig, location.hash);
-        setOpenKeys([...newOpenGroup]);
+    const unSubscribeToggleLeftNavPanelPub = subscribe(
+      toggleLeftNavPanelPub,
+      (isExpanded: boolean) => {
+        toggleCollapsed(isExpanded);
+        if (!isExpanded) {
+          const newOpenGroup = findIdAndAncestors(
+            finalMenuConfig,
+            location.hash
+          );
+          setOpenKeys([...newOpenGroup]);
+        }
       }
-    });
+    );
     return () => {
       unSubscribeToggleLeftNavPanelPub();
     };
   }, []);
 
   useEffect(() => {
-    const newSelectedKeys = findIdByRoute(finalMenuConfig, location.hash) ?? '';
+    const newSelectedKeys = findIdByRoute(finalMenuConfig, location.hash) ?? "";
     if (newSelectedKeys) setSelectedKeys([newSelectedKeys]);
   }, [hashLocation]);
 
   return (
     <NMenu
       defaultSelectedKeys={[finalMenuConfig[0].id]}
-      mode='inline'
-      theme={'light'}
+      mode="inline"
+      theme={"light"}
       items={finalItems}
       inlineCollapsed={collapsed}
       openKeys={openKeys}

@@ -5,10 +5,11 @@ import TAlarmEnvironment from "../../../nirmata-model-schema/Environments.TAlarm
 import TAlarmCluster from "../../../nirmata-model-schema/Cluster.TAlarm";
 import TAlarmPolicies from "../../../nirmata-model-schema/Policies.TAlarm";
 import TEvent from "../../../nirmata-model-schema/Environments.TEvent";
-import { MetricEntry } from "../../../components/dashboard/types";
 import { convertToKFormat } from "../utils/utils";
 import useQuery from "../../../components/connector/use-query";
+import { MetricEntry } from "../../../components/dashboard/types";
 import getCookie from "../../../components/connector/get-cookie";
+import { Tenant } from "../types";
 
 const useGetAlarmsData = () => {
   const [formattedAlarms, setFormattedAlarms] = useState<MetricEntry[]>([]);
@@ -19,15 +20,21 @@ const useGetAlarmsData = () => {
     useQuery<TAlarmCluster[]>();
   const [policiesAlaramResponse, policiesAlaramActions] =
     useQuery<TAlarmPolicies[]>();
-  const [violationEventsResponse, violationEventsActions] =
-    useQuery<TEvent[]>();
-  const [exceptionEventsResponse, exceptionEventsActions] =
-    useQuery<TEvent[]>();
+  const [violationEventsResponse, violationEventsActions] = useQuery<{
+    count: number;
+    start: number;
+    total: number;
+    entries?: TEvent[];
+  }>();
+  const [exceptionEventsResponse, exceptionEventsActions] = useQuery<{
+    count: number;
+    start: number;
+    total: number;
+    entries?: TEvent[];
+  }>();
   const userData = getCookie("nirmata.session.userData");
-  const userRole = (
-    JSON.parse(decodeURIComponent(userData ?? "")) as { role: string }
-  ).role;
-
+  const tenantData = JSON.parse(decodeURIComponent(userData ?? "")) as Tenant;
+  // Now you can safely use userRole and tenantData
   const loadingAlarm =
     configAlarmResponse?.loading ||
     environmentAlarmResponse?.loading ||
@@ -39,27 +46,47 @@ const useGetAlarmsData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const imageVulnerabilityFeatureEnabled = tenantData?.features?.includes(
+          "image-vulnerability"
+        );
+        const tenantType = tenantData?.tenantType;
+        let filterQuery = "&filter=state,eq,active";
+
+        if (tenantType === "GA2") {
+          filterQuery += "&filter=isDismissed,eq,false";
+          const excludeGA1AlarmsFilter = "&filter=subject.service,ne,Config";
+          filterQuery += excludeGA1AlarmsFilter;
+        }
+
+        if (!imageVulnerabilityFeatureEnabled) {
+          filterQuery += "&filter=alarmId,ne,ImageVulnerabilities";
+        }
+
         const [
-          configAlarms,
-          environmentAlarms,
           clusterAlarms,
           policyAlarms,
           violationEventData,
           exceptionEventData,
         ] = await Promise.all([
-          configAlarmActions.onLoad("/config/api/Alarm?fields=severity"),
-          environmentAlarmActions.onLoad(
-            "/environments/api/Alarm?fields=severity"
+          clusterAlarmActions.onLoad(
+            `/cluster/api/Alarm?fields=severity${filterQuery}`
           ),
-          clusterAlarmActions.onLoad("/cluster/api/Alarm?fields=severity"),
-          policiesAlaramActions.onLoad("/policies/api/Alarm?fields=severity"),
+          policiesAlaramActions.onLoad(
+            `/policies/api/Alarm?fields=severity${filterQuery}`
+          ),
           violationEventsActions.onLoad(
-            "policies/api/Event?filter=reason,eq,PolicyViolation&fields=id"
+            "policies/api/Event?paginate=true&count=10&start=0&filter=reason,eq,PolicyViolation&fields=id"
           ),
           exceptionEventsActions.onLoad(
-            "policies/api/Event?filter=regarding.kind,eq,PolicyException&fields=id"
+            "policies/api/Event?paginate=true&count=10&start=0&filter=regarding.kind,eq,PolicyException&fields=id"
           ),
         ]);
+        const configAlarms = await configAlarmActions
+          .onLoad(`/config/api/Alarm?fields=severity${filterQuery}`)
+          .catch((e) => console.log(e));
+        const environmentAlarms = await environmentAlarmActions
+          .onLoad(`/environments/api/Alarm?fields=severity${filterQuery}`)
+          .catch((e) => console.log(e));
 
         const allAlarms = [
           ...(configAlarms?.data ?? []),
@@ -75,8 +102,8 @@ const useGetAlarmsData = () => {
           (alarm) => alarm.severity === "major"
         ).length;
 
-        const violationEventCount = violationEventData?.data?.length;
-        const exceptionEventCount = exceptionEventData?.data?.length;
+        const violationEventCount = violationEventData?.data?.total;
+        const exceptionEventCount = exceptionEventData?.data?.total;
 
         const alarmData = [
           {
@@ -88,8 +115,7 @@ const useGetAlarmsData = () => {
                 style={{ height: "24px", width: "24px", color: "#FF4D4F" }}
               />
             ),
-            link:
-              userRole === "admin" ? "#alarms/category/policyViolations" : "",
+            link: "/webclient/#alarms/category/policyViolations?critical",
           },
           {
             title: "Major Alarms",
@@ -100,8 +126,7 @@ const useGetAlarmsData = () => {
                 style={{ height: "24px", width: "24px", color: "#FA8C16" }}
               />
             ),
-            link:
-              userRole === "admin" ? "#alarms/category/policyViolations" : "",
+            link: "/webclient/#alarms/category/policyViolations?major",
           },
           {
             title: "Violation Events",
@@ -112,7 +137,7 @@ const useGetAlarmsData = () => {
                 style={{ height: "24px", width: "24px", color: "#f5222d" }}
               />
             ),
-            link: userRole === "admin" ? "#events" : "",
+            link: "/webclient/#events?filter=reason=PolicyViolation",
           },
           {
             title: "Exception Events",
@@ -133,7 +158,7 @@ const useGetAlarmsData = () => {
                 />
               </svg>
             ),
-            link: userRole === "admin" ? "#events" : "",
+            link: "/webclient/#events?filter=regarding.kind=PolicyException",
           },
         ];
 

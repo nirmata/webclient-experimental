@@ -1,290 +1,295 @@
-import { TMenuItem } from './types';
+import { TMenuItem } from "./types";
 import {
   DeploymentUnitOutlined,
   FileProtectOutlined,
   DashboardOutlined,
   DesktopOutlined,
   IdcardOutlined,
-  SettingOutlined
-} from '@ant-design/icons';
-import Workloads from '../../assets//workloads.svg';
-import { ImageComponent, withImageComponent } from './use-get-n4k-menu-list';
+  SettingOutlined,
+} from "@ant-design/icons";
+import Workloads from "../../assets//workloads.svg";
+import { ImageComponent, withImageComponent } from "./use-get-n4k-menu-list";
 
+const WorkloadComponent = withImageComponent(
+  ImageComponent,
+  Workloads,
+  "WorkloadsIcon"
+);
 
-const  WorkloadComponent  = withImageComponent(ImageComponent,Workloads, 'WorkloadsIcon');
-
-export const useGetNirmataPlatformMenuList = (featuresList: string[]): TMenuItem[] => {
+export const useGetNirmataPlatformMenuList = (
+  featuresList: string[]
+): TMenuItem[] => {
   return [
     {
-      id: 'overview_menu',
-      route: 'dashboards/overview',
-      title: 'Home',
+      id: "overview_menu",
+      route: "/webclient/dashboards/overview",
+      title: "Home",
       component: DashboardOutlined,
-      dataTestId: 'dashboard',
+      dataTestId: "dashboard",
       submenu: [
         {
-          id: 'getting_started_menu',
-          route: 'getstarted',
-          title: 'Get Started',
-          dataTestId: 'dashboard-get-started'
+          id: "getting_started_menu",
+          route: "/webclient/getstarted",
+          title: "Get Started",
+          dataTestId: "dashboard-get-started",
         },
         {
-          id: 'dashboard_overview_menu',
-          route: 'dashboards/overview',
-          title: 'Dashboard',
-          dataTestId: 'dashboard-overview'
+          id: "dashboard_overview_menu",
+          route: "/webclient/dashboards/overview",
+          title: "Dashboard",
+          dataTestId: "dashboard-overview",
         },
         {
-          id: 'activity_menu',
-          route: 'activity',
-          title: 'Activity',
-          dataTestId: 'dashboard-activity'
-        }
-      ]
+          id: "activity_menu",
+          route: "/webclient/activity",
+          title: "Activity",
+          dataTestId: "dashboard-activity",
+        },
+      ],
     },
     {
-      id: 'workload_menu',
-      route: 'catalog',
-      title: 'Workloads',
+      id: "workload_menu",
+      route: "/webclient/catalog",
+      title: "Workloads",
       component: WorkloadComponent,
-      dataTestId: 'workloads',
+      dataTestId: "workloads",
       submenu: [
         {
-          id: 'currentCatalog_menu',
-          route: 'catalog',
-          title: 'Catalogs',
-          dataTestId: 'workloads-catalogs'
+          id: "currentCatalog_menu",
+          route: "/webclient/catalog",
+          title: "Catalogs",
+          dataTestId: "workloads-catalogs",
         },
         {
-          id: 'chartRepositories_menu',
-          route: 'chartRepositories',
-          title: 'Helm Charts',
-          dataTestId: 'workloads-helm-charts'
+          id: "chartRepositories_menu",
+          route: "/webclient/chartRepositories",
+          title: "Helm Charts",
+          dataTestId: "workloads-helm-charts",
         },
         {
-          id: 'env_menu',
-          route: 'environments',
-          title: 'Environments',
-          dataTestId: 'workloads-environments'
+          id: "env_menu",
+          route: "/webclient/environments",
+          title: "Environments",
+          dataTestId: "workloads-environments",
         },
         {
-          id: 'environmentTypes_menu',
-          route: 'envtypes',
-          title: 'Environment Types',
-          dataTestId: 'workloads-environments-type'
+          id: "environmentTypes_menu",
+          route: "/webclient/envtypes",
+          title: "Environment Types",
+          dataTestId: "workloads-environments-type",
         },
         {
-          id: 'applications_alarm_menu',
-          route: 'alarms/category/applications',
-          title: 'Alarms',
-          dataTestId: 'workloads-alarms'
-        }
-      ]
+          id: "applications_alarm_menu",
+          route: "/webclient/alarms/category/applications",
+          title: "Alarms",
+          dataTestId: "workloads-alarms",
+        },
+      ],
     },
     {
-      id: 'policies_menu',
-      route: 'policiesDashboard',
-      title: 'Policies',
+      id: "policies_menu",
+      route: "/webclient/policiesDashboard",
+      title: "Policies",
       component: FileProtectOutlined,
-      dataTestId: 'policy',
+      dataTestId: "policy",
       submenu: [
         {
-          id: 'policies_dashboard_menu',
-          route: 'policiesDashboard',
-          title: 'Dashboard',
-          dataTestId: 'policies-dashboard'
+          id: "policies_dashboard_menu",
+          route: "/webclient/policiesDashboard",
+          title: "Dashboard",
+          dataTestId: "policies-dashboard",
         },
         {
-          id: 'workload_policy_menus',
-          route: 'workloadManagePolicies',
-          title: 'Policy Sets',
-          dataTestId: 'policy-sets'
+          id: "workload_policy_menus",
+          route: "/webclient/workloadManagePolicies",
+          title: "Policy Sets",
+          dataTestId: "policy-sets",
         },
         {
-          id: 'clusters_policy_report_menus',
-          route: 'clustersPolicyReport',
-          title: 'Policy Reports',
-          dataTestId: 'policy-reports'
+          id: "clusters_policy_report_menus",
+          route: "/webclient/clustersPolicyReport",
+          title: "Policy Reports",
+          dataTestId: "policy-reports",
         },
         {
-          id: 'policy_exceptions_menus',
-          route: 'policyExceptions',
-          title: 'Policy Exceptions',
-          dataTestId: 'policy-exceptions'
+          id: "policy_exceptions_menus",
+          route: "/webclient/policyExceptions",
+          title: "Policy Exceptions",
+          dataTestId: "policy-exceptions",
         },
 
-        featuresList.includes('image-vulnerability')
+        featuresList.includes("image-vulnerability")
           ? {
-              id: 'images_menu',
-              route: 'images',
-              title: 'Images',
+              id: "images_menu",
+              route: "/webclient/images",
+              title: "Images",
               preview: true,
-              dataTestId: 'images'
+              dataTestId: "images",
             }
           : undefined,
         {
-          id: 'policies_alarm_menu',
-          route: 'alarms/category/policyViolations',
-          title: 'Alarms',
-          dataTestId: 'policy-alarms'
+          id: "policies_alarm_menu",
+          route: "/webclient/alarms/category/policyViolations",
+          title: "Alarms",
+          dataTestId: "policy-alarms",
         },
         {
-          id: 'compliance_standards_report_menu',
-          route: 'complianceStandardsReport',
-          title: 'Compliance',
-          dataTestId: 'policy-compliance-standards'
-        }
-      ].filter(Boolean) as TMenuItem[]
+          id: "compliance_standards_report_menu",
+          route: "/webclient/complianceStandardsReport",
+          title: "Compliance",
+          dataTestId: "policy-compliance-standards",
+        },
+      ].filter(Boolean) as TMenuItem[],
     },
     {
-      id: 'hostClusters_menu',
-      route: 'clusters',
-      title: 'Clusters',
+      id: "hostClusters_menu",
+      route: "/webclient/clusters",
+      title: "Clusters",
       component: DeploymentUnitOutlined,
-      dataTestId: 'clusters',
+      dataTestId: "clusters",
       submenu: [
         {
-          id: 'clusters_alarm_menu',
-          route: 'alarms/category/clusters',
-          title: 'Alarms',
-          dataTestId: 'clusters-alarms'
+          id: "clusters_alarm_menu",
+          route: "/webclient/alarms/category/clusters",
+          title: "Alarms",
+          dataTestId: "clusters-alarms",
         },
         {
-          id: 'hostClusters_menu',
-          route: 'clusters',
-          title: 'Clusters',
-          dataTestId: 'clusters-clusters'
+          id: "hostClusters_menu",
+          route: "/webclient/clusters",
+          title: "Clusters",
+          dataTestId: "clusters-clusters",
         },
         {
-          id: 'clusterPolicy_menu',
-          route: 'clusterTypes',
-          title: 'Cluster Types',
-          dataTestId: 'clusters-clustertypes'
+          id: "clusterPolicy_menu",
+          route: "/webclient/clusterTypes",
+          title: "Cluster Types",
+          dataTestId: "clusters-clustertypes",
         },
         {
-          id: 'providers_menu',
-          route: 'cloudcredentials',
-          title: 'Cloud Credentials',
-          dataTestId: 'clusters-cloud-credentials'
+          id: "providers_menu",
+          route: "/webclient/cloudcredentials",
+          title: "Cloud Credentials",
+          dataTestId: "clusters-cloud-credentials",
         },
         {
-          id: 'dashboard_inventory_menu',
-          route: 'dashboards/inventory',
-          title: 'Inventory Report',
-          dataTestId: 'clusters-inventory-report'
-        }
-      ]
+          id: "dashboard_inventory_menu",
+          route: "/webclient/dashboards/inventory",
+          title: "Inventory Report",
+          dataTestId: "clusters-inventory-report",
+        },
+      ],
     },
     {
-      id: 'monitor_menu',
-      route: 'events',
-      title: 'Monitor',
+      id: "monitor_menu",
+      route: "/webclient/events",
+      title: "Monitor",
       component: DesktopOutlined,
-      dataTestId: 'monitor',
+      dataTestId: "monitor",
       submenu: [
         {
-          id: 'policies_events_menu',
-          route: 'events',
-          title: 'Events',
-          dataTestId: 'monitor-policy-events'
-        }
-      ]
+          id: "policies_events_menu",
+          route: "/webclient/events",
+          title: "Events",
+          dataTestId: "monitor-policy-events",
+        },
+      ],
     },
     {
-      id: 'iam_menu',
-      route: 'users',
-      title: 'Identity & Access',
+      id: "iam_menu",
+      route: "/webclient/users",
+      title: "Identity & Access",
       component: IdcardOutlined,
-      dataTestId: 'identity-and-access',
+      dataTestId: "identity-and-access",
       submenu: [
         {
-          id: 'users_menu',
-          route: 'users',
-          title: 'Users',
-          dataTestId: 'identity-and-access-users'
+          id: "users_menu",
+          route: "/webclient/users",
+          title: "Users",
+          dataTestId: "identity-and-access-users",
         },
         {
-          id: 'teams_menu',
-          route: 'teams',
-          title: 'Teams',
-          dataTestId: 'identity-and-access-teams'
+          id: "teams_menu",
+          route: "/webclient/teams",
+          title: "Teams",
+          dataTestId: "identity-and-access-teams",
         },
         {
-          id: 'saml_menu',
-          route: 'saml',
-          title: 'SAML',
-          dataTestId: 'identity-and-access-saml'
+          id: "saml_menu",
+          route: "/webclient/saml",
+          title: "SAML",
+          dataTestId: "identity-and-access-saml",
         },
         {
-          id: 'oidc_menu',
-          route: 'oidc',
-          title: 'OIDC',
-          dataTestId: 'identity-and-access-oidc'
+          id: "oidc_menu",
+          route: "/webclient/oidc",
+          title: "OIDC",
+          dataTestId: "identity-and-access-oidc",
         },
         {
-          id: 'mfa_menu',
-          route: 'mfa',
-          title: 'MFA',
-          dataTestId: 'identity-and-access-mfa'
-        }
-      ]
+          id: "mfa_menu",
+          route: "/webclient/mfa",
+          title: "MFA",
+          dataTestId: "identity-and-access-mfa",
+        },
+      ],
     },
     {
-      id: 'settings_menu',
-      route: 'profile',
-      title: 'Settings',
-      dataTestId: 'settings',
+      id: "settings_menu",
+      route: "/webclient/profile",
+      title: "Settings",
+      dataTestId: "settings",
       component: SettingOutlined,
       submenu: [
         {
-          id: 'registries_menu',
-          route: 'registries',
-          title: 'Image Registries',
-          dataTestId: 'settings-image-registries'
+          id: "registries_menu",
+          route: "/webclient/registries",
+          title: "Image Registries",
+          dataTestId: "settings-image-registries",
         },
         {
-          id: 'integration_menu',
-          route: 'integration',
-          title: 'Integrations',
-          dataTestId: 'settings-integration'
+          id: "integration_menu",
+          route: "/webclient/integration",
+          title: "Integrations",
+          dataTestId: "settings-integration",
         },
         {
-          id: 'alarm_settings_menu',
-          route: 'alarms/alarmSettings',
-          title: 'Alarms Settings',
-          dataTestId: 'settings-alarms'
+          id: "alarm_settings_menu",
+          route: "/webclient/alarms/alarmSettings",
+          title: "Alarms Settings",
+          dataTestId: "settings-alarms",
         },
         {
-          id: 'profile_menu',
-          route: 'profile',
-          title: 'Profile',
-          dataTestId: 'settings-profile'
+          id: "profile_menu",
+          route: "/webclient/profile",
+          title: "Profile",
+          dataTestId: "settings-profile",
         },
         {
-          id: 'account_menu',
-          route: 'account',
-          title: 'Account',
-          dataTestId: 'settings-account'
+          id: "account_menu",
+          route: "/webclient/account",
+          title: "Account",
+          dataTestId: "settings-account",
         },
         {
-          id: 'kyverno_config',
-          route: 'kyvernoConfigurations',
-          title: 'Kyverno Configurations',
-          dataTestId: 'settings-kyverno-config'
+          id: "kyverno_config",
+          route: "/webclient/kyvernoConfigurations",
+          title: "Kyverno Configurations",
+          dataTestId: "settings-kyverno-config",
         },
         {
-          id: 'instructions',
-          route: 'instructions',
-          title: 'Instructions',
-          dataTestId: 'settings-instructions'
+          id: "instructions",
+          route: "/webclient/instructions",
+          title: "Instructions",
+          dataTestId: "settings-instructions",
         },
         {
-          id: 'manageKubeConfig_menu',
-          route: 'manageKubeConfig',
-          title: 'Manage Kubeconfig',
-          dataTestId: 'settings-manage-kubeconfig'
-        }
-      ]
-    }
+          id: "manageKubeConfig_menu",
+          route: "/webclient/manageKubeConfig",
+          title: "Manage Kubeconfig",
+          dataTestId: "settings-manage-kubeconfig",
+        },
+      ],
+    },
   ].filter(Boolean);
 };

@@ -1,7 +1,8 @@
 import { useGetRepoComplianceReport } from "./useGetRepoComplianceData";
 import { TAggCompReport } from "./useGetClusterComplianceAggMatrix";
-import TMayBe from "../../../components/connector/TMayBe";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
 import TRepositoryComplianceReport from "../../../nirmata-model-schema/Policies.TRepositoryComplianceReport";
+import { getUniquekyes } from "../utils/utils";
 
 export const useGetRepoCategoryComplianceAggMatrix = () => {
   const { repositoryComplianceLoading: catgoryRepositoryComplianceLoading } =
@@ -12,32 +13,52 @@ export const useGetRepoCategoryComplianceAggMatrix = () => {
       data?: TMayBe<TRepositoryComplianceReport[]>;
     }>
   ) => {
-    // const reportComplianceReport = await loadRepoComplianceReport();
     if (Boolean(reportComplianceReport?.data)) {
-      const temp: TAggCompReport[] = reportComplianceReport?.data?.map(
-        (item) => ({
-          id: item?.standardId,
-          name: item?.standardName,
-          pass: item?.pass,
-          total: item?.total,
-          score: item?.score,
-          standardId: item?.standardId,
-        })
-      ) as TAggCompReport[];
-      const sortedTop5 = temp?.sort(
+      const uniqueStdIds = getUniquekyes(
+        reportComplianceReport?.data?.map((key) => key?.standardId as string) ??
+          []
+      );
+      const temp1: TAggCompReport[] = uniqueStdIds.map((item) => ({
+        id: item,
+        name:
+          reportComplianceReport?.data?.find(
+            (reportObj) => reportObj.standardId === item
+          )?.standardName ?? "",
+        pass:
+          reportComplianceReport?.data
+            ?.filter((filteredItem) => filteredItem.standardId === item)
+            ?.reduce((acc, entry) => acc + (entry?.pass ?? 0), 0) ?? 0,
+        total:
+          reportComplianceReport?.data
+            ?.filter((filteredItem) => filteredItem.standardId === item)
+            ?.reduce((acc, entry) => acc + (entry?.total ?? 0), 0) ?? 0,
+        score:
+          Number(
+            ((reportComplianceReport?.data
+              ?.filter((filteredItem) => filteredItem.standardId === item)
+              ?.reduce((acc, entry) => acc + (entry?.pass ?? 0), 0) ?? 0) /
+              (reportComplianceReport?.data
+                ?.filter((filteredItem) => filteredItem.standardId === item)
+                ?.reduce((acc, entry) => acc + (entry?.total ?? 0), 0) ?? 1)) *
+              100
+          ) ?? 0,
+        standardId: [item],
+      }));
+
+      const sortedResult = temp1?.sort(
         (a, b) => Number(a?.score) ?? 0 - Number(b?.score) ?? 0
       );
 
       const categoryRepoTotalScore =
         (Number(
-          sortedTop5?.reduce(
+          sortedResult?.reduce(
             (prev, curr) => Number(prev) + Number(curr?.pass),
             0
           )
         ) /
-          Number(sortedTop5?.reduce((prev, curr) => prev + curr?.total, 0))) *
+          Number(sortedResult?.reduce((prev, curr) => prev + curr?.total, 0))) *
         100;
-      return { report: sortedTop5, totalScore: categoryRepoTotalScore };
+      return { report: sortedResult, totalScore: categoryRepoTotalScore };
     }
   };
 

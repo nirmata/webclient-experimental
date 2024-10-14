@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Progress } from "antd";
-import { nirmataColors } from "../../componentsV2/assets/global";
-import { ResourceKindTag } from "../../componentsV2/ResourceKind/resource-kind";
+import { ResourceKindTag } from "../../policy-report/resource-kind-tag";
+import { nirmataColors } from "../../componentsV2";
 
 type ProgressCircleWithLabelProps = {
   percent: number;
@@ -11,6 +11,8 @@ type ProgressCircleWithLabelProps = {
   isRepo?: boolean;
   selectedNamespaceOption?: string;
   link?: string;
+  total?: number;
+  title?: string;
 };
 
 export const getStrokeColor = (score?: number) => {
@@ -28,6 +30,8 @@ const ProgressCircleWithLabel: React.FC<ProgressCircleWithLabelProps> = ({
   isRepo,
   selectedNamespaceOption,
   link,
+  total,
+  title,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -56,6 +60,7 @@ const ProgressCircleWithLabel: React.FC<ProgressCircleWithLabelProps> = ({
         style={{
           justifyContent: "center",
           alignItems: "center",
+          textDecoration: "none",
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -66,7 +71,9 @@ const ProgressCircleWithLabel: React.FC<ProgressCircleWithLabelProps> = ({
             percent={percent}
             size={144}
             strokeWidth={10}
-            strokeColor={getStrokeColor(percent)}
+            strokeColor={
+              title === "Violations" ? "#D8363E" : getStrokeColor(percent)
+            }
           />
         </div>
         <div
@@ -99,7 +106,11 @@ const ProgressCircleWithLabel: React.FC<ProgressCircleWithLabelProps> = ({
               />
             ) ?? <div>{icon}</div>
           )}
-          <div>{label}</div>
+          <div style={{ textDecoration: "none" }}>
+            {`${label} ${
+              selectedNamespaceSegment !== "namespaces" ? `(${total})` : ""
+            }`}
+          </div>
         </div>
       </a>
     </div>

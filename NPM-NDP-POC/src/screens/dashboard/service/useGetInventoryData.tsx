@@ -1,21 +1,41 @@
 import { useEffect, useState } from "react";
 import { DeploymentUnitOutlined, DatabaseOutlined } from "@ant-design/icons";
-import { convertToKFormat } from "../utils/utils";
-import useQuery from "../../../components/connector/use-query";
-import { MetricEntry } from "../../../components/dashboard/types";
-import { ResourceKindTag } from "../../../components/componentsV2/ResourceKind/resource-kind";
-import TCluster from "../../../nirmata-model-schema/Config.TCluster";
 import TNamespace from "../../../nirmata-model-schema/Cluster.TNamespace";
-import { RepositoryBase } from "../types";
+import { convertToKFormat } from "../utils/utils";
+import {
+  ClusterPolicyReportEntry,
+  MetricEntry,
+} from "../../../components/dashboard/types";
+import useQuery from "../../../components/connector/use-query";
+import { RepositoryBase, Tenant } from "../types";
+import { ResourceKindTag } from "../../../components/policy-report/resource-kind-tag";
+import getCookie from "../../../components/connector/get-cookie";
 
 const useGetInventoryData = () => {
   const [formattedInventory, setFormattedInventory] = useState<MetricEntry[]>(
     []
   );
-  const [clusterResponse, clusterAction] = useQuery<TCluster[]>();
-  const [namespaceResponse, namespaceAction] = useQuery<TNamespace[]>();
-  const [repositoryResponse, repositoryActions] = useQuery<RepositoryBase[]>();
-
+  const [totalRepositories, setTotalRepositories] = useState<number>(0);
+  const [clusterResponse, clusterAction] = useQuery<{
+    count: number;
+    start: number;
+    total: number;
+    entries?: ClusterPolicyReportEntry[];
+  }>();
+  const [namespaceResponse, namespaceAction] = useQuery<{
+    count: number;
+    start: number;
+    total: number;
+    entries?: TNamespace[];
+  }>();
+  const [repositoryResponse, repositoryActions] = useQuery<{
+    count: number;
+    start: number;
+    total: number;
+    entries?: RepositoryBase[];
+  }>();
+  const userData = getCookie("nirmata.session.userData");
+  const tenantData = JSON.parse(decodeURIComponent(userData ?? "")) as Tenant;
   const loadingInventory =
     repositoryResponse?.loading ||
     clusterResponse?.loading ||
@@ -24,20 +44,21 @@ const useGetInventoryData = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [clusterData, namespaceData, repositoryData] = await Promise.all([
-        clusterAction.onLoad("/policies/api/namespaces?fields=clusterName"),
-        namespaceAction.onLoad(
-          "/policies/api/getPolicyReportNamespaceTable?filter=namespace,ne,null&fields=id"
+        clusterAction.onLoad(
+          "/policies/api/getPolicyReportClusterTable?filter=clusterName,ne,null&fields=clusterName"
         ),
-        repositoryActions.onLoad("/policies/api/repositories?fields=id"),
+        namespaceAction.onLoad(
+          "/policies/api/getPolicyReportNamespaceTable?pagination=true&start=0&count=10&filter=namespace,ne,null&fields=id"
+        ),
+        repositoryActions.onLoad(
+          "/policies/api/repositories?paginate=true&start=0&count=10&fields=id"
+        ),
       ]);
 
-      const uniqueClusterNames = Array?.from(
-        new Set(clusterData?.data?.map((item: any) => item?.clusterName))
-      );
-
-      const inventoryClusterCount = uniqueClusterNames.length;
-      const inventoryNamespaceCount = namespaceData?.data?.entries?.length ?? 0;
-      const inventoryRepositoryCount = repositoryData?.data?.length ?? 0;
+      const inventoryClusterCount = clusterData?.data?.entries?.length ?? 0;
+      const inventoryNamespaceCount = namespaceData?.data?.total ?? 0;
+      const inventoryRepositoryCount = repositoryData?.data?.total ?? 0;
+      setTotalRepositories(inventoryRepositoryCount);
 
       setFormattedInventory([
         {
@@ -48,7 +69,10 @@ const useGetInventoryData = () => {
               style={{ height: "24px", width: "24px", color: "#00000073" }}
             />
           ),
-          link: "#clustersPolicyReport/clusters",
+          link:
+            tenantData?.role === "devops"
+              ? "/webclient/#clustersPolicyReport/clusters"
+              : "#clusters",
         },
         {
           title: "Namespaces",
@@ -59,7 +83,7 @@ const useGetInventoryData = () => {
               style={{ color: "#00000073", height: "22px", width: "30px" }}
             />
           ),
-          link: "#clustersPolicyReport/namespaces",
+          link: "/webclient/#clustersPolicyReport/namespaces",
         },
         {
           title: "Repositories",
@@ -69,7 +93,10 @@ const useGetInventoryData = () => {
               style={{ height: "24px", width: "24px", color: "#00000073" }}
             />
           ),
-          link: "#repositories",
+          link:
+            tenantData?.role === "devops"
+              ? "/webclient/#clustersPolicyReport/repositories"
+              : "#repositories",
         },
       ]);
     };
@@ -77,7 +104,7 @@ const useGetInventoryData = () => {
     fetchData();
   }, []);
 
-  return { formattedInventory, loadingInventory };
+  return { formattedInventory, loadingInventory, totalRepositories };
 };
 
 export default useGetInventoryData;

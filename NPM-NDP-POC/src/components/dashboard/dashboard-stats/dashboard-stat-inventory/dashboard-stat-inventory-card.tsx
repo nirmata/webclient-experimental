@@ -1,5 +1,6 @@
-import * as React from 'react';
-import styled from 'styled-components';
+import * as React from "react";
+import styled from "styled-components";
+import { ResourceKindTag } from "../../../policy-report/resource-kind-tag";
 
 interface CardProps {
   title: string;
@@ -9,13 +10,26 @@ interface CardProps {
   link?: string;
 }
 
-const DashboardStatInventoryCard: React.FC<CardProps> = ({ title, value, icon, isLast, link }) => {
+const DashboardStatInventoryCard: React.FC<CardProps> = ({
+  title,
+  value,
+  icon,
+  isLast,
+  link,
+}) => {
   return (
     <CardContainer>
-      <StyledLink href={link ?? ''}>
+      <StyledLink href={link ?? ""}>
         <CardTitle isLast={isLast}>{title}</CardTitle>
         <CardContent>
-          <div>{icon}</div>
+          {title !== "Namespaces" ? (
+            icon
+          ) : (
+            <ResourceKindTag
+              kind={"namespace"}
+              style={{ color: "#00000073", height: "22px", width: "30px" }}
+            />
+          )}
           <div>{value}</div>
         </CardContent>
       </StyledLink>
@@ -28,10 +42,8 @@ export default DashboardStatInventoryCard;
 const CardContainer = styled.div`
   justify-content: center;
   border-radius: 4px;
-  box-shadow:
-    0px 1px 2px 0px rgba(0, 0, 0, 0.03),
-    0px 1px 6px -1px rgba(0, 0, 0, 0.02),
-    0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.03),
+    0px 1px 6px -1px rgba(0, 0, 0, 0.02), 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -51,17 +63,16 @@ const StyledLink = styled.a`
   &:hover {
     border-radius: 4px;
     background: rgba(22, 119, 255, 0.25);
-    border: 1px solid #1677FF;
-    box-shadow:
-      0px 2px 4px 0px rgba(0, 0, 0, 0.04),
-      0px 2px 8px -2px rgba(0, 0, 0, 0.04),
-      0px 4px 6px 0px rgba(0, 0, 0, 0.04);
+    border: 1px solid #1677ff;
+    text-decoration: none;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.04),
+      0px 2px 8px -2px rgba(0, 0, 0, 0.04), 0px 4px 6px 0px rgba(0, 0, 0, 0.04);
   }
 `;
 
 const CardTitle = styled.div<{ isLast?: boolean }>`
   color: rgba(0, 0, 0, 0.45);
-  align-self: ${({ isLast }) => (isLast ? 'center' : 'start')};
+  align-self: ${({ isLast }) => (isLast ? "center" : "start")};
   font-size: 13px;
 `;
 

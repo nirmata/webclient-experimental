@@ -1,21 +1,24 @@
-import styled from 'styled-components';
-import DashboardStatInventoryCard from './dashboard-stat-inventory-card';
-import { MetricEntry } from '../../types';
-import { Skeleton } from 'antd';
-import If from '../../../if';
+import styled from "styled-components";
+import DashboardStatInventoryCard from "./dashboard-stat-inventory-card";
+import { MetricEntry } from "../../types";
+import If from "../../../if";
+import { Skeleton } from "antd";
 
 interface DashboardStatInventoryProps {
   inventoryData: MetricEntry[];
   loadingInventory: boolean;
 }
 
-const DashboardStatInventory: React.FC<DashboardStatInventoryProps> = ({ inventoryData, loadingInventory }) => {
+const DashboardStatInventory: React.FC<DashboardStatInventoryProps> = ({
+  inventoryData,
+  loadingInventory,
+}) => {
   return (
     <Container>
       <Title>Inventory</Title>
       <If condition={loadingInventory}>
         <If.True>
-          <Skeleton active style={{ width: '100%;' }} />
+          <Skeleton active style={{ width: "100%;" }} />
         </If.True>
         <If.False>
           <Content>

@@ -1,13 +1,4 @@
-import React, { useEffect, useState } from "react";
-import DashboardStatInventory from "../../components/dashboard/dashboard-stats/dashboard-stat-inventory/dashboard-stat-inventory";
-import DashboardStatPolicies from "../../components/dashboard/dashboard-stats/dashboard-stat-policies/dashboard-state-policies";
-import DashboardStatAlarms from "../../components/dashboard/dashboard-stats/dashboard-stat-alarms/dashboard-stat-alarms";
-import DashboardCard from "../../components/dashboard/dashboard-cards/dashboard-card";
-import {
-  violationSegment,
-  clusterNamespaceSegment,
-  complianceSegment,
-} from "../../components/dashboard/dashboard-overview";
+import { useEffect, useState } from "react";
 import { useGetViolationData } from "./service/useGetViolationData";
 import { useFetchData } from "./service/useFetchData";
 import { useGetComplianceData } from "./service/useGetComplianceData";
@@ -15,19 +6,28 @@ import { useGetNamespaceComplianceAggMatrix } from "./service/useGetNamespaceCom
 import useGetPoliciesData from "./service/useGetPoliciesData";
 import useGetInventoryData from "./service/useGetInventoryData";
 import useGetAlarmsData from "./service/useGetAlarmsData";
-import {
-  ComplianceItemMap,
-  ViolationItemsMap,
-} from "../../components/dashboard/types";
 import { useGetAllcomplianceReport } from "./service/useGetAllComplianceReport";
 import {
   TClusterComplianceReportData,
   TNamespaceComplianceReportData,
   TReportComplianceReportData,
 } from "./types";
+import {
+  ComplianceItemMap,
+  ViolationItemsMap,
+} from "../../components/dashboard/types";
+import DashboardStatInventory from "../../components/dashboard/dashboard-stats/dashboard-stat-inventory/dashboard-stat-inventory";
+import DashboardStatPolicies from "../../components/dashboard/dashboard-stats/dashboard-stat-policies/dashboard-state-policies";
+import DashboardStatAlarms from "../../components/dashboard/dashboard-stats/dashboard-stat-alarms/dashboard-stat-alarms";
+import {
+  clusterNamespaceSegment,
+  complianceSegment,
+  violationSegment,
+} from "../../components/dashboard/dashboard-overview";
+import DashboardCard from "../../components/dashboard/dashboard-cards/dashboard-card";
 import getCookie from "../../components/connector/get-cookie";
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const [selectedNamespaceOptionViol, setSelectedNamespaceOptionViol] =
     useState<string>("All Clusters");
 
@@ -48,7 +48,6 @@ const Dashboard: React.FC = () => {
     clusterPolicyEntries: [],
     dashboardData: null,
     namespacePolicyEntries: [],
-    policyData: null,
   });
 
   useEffect(() => {
@@ -60,12 +59,7 @@ const Dashboard: React.FC = () => {
     fetchAndSetData();
   }, [fetchData]);
 
-  const {
-    clusterPolicyEntries,
-    dashboardData,
-    namespacePolicyEntries,
-    policyData,
-  } = data;
+  const { clusterPolicyEntries, dashboardData, namespacePolicyEntries } = data;
 
   const { formattedViolation, clusterViolOptions } = useGetViolationData(
     selectedNamespaceOptionViol,
@@ -73,11 +67,10 @@ const Dashboard: React.FC = () => {
     dashboardData,
     namespacePolicyEntries
   );
-  const { formattedPolicies, loadingPolicies } = useGetPoliciesData(
-    dashboardData,
-    policyData
-  );
-  const { formattedInventory, loadingInventory } = useGetInventoryData();
+  const { formattedPolicies, loadingPolicies } =
+    useGetPoliciesData(dashboardData);
+  const { formattedInventory, loadingInventory, totalRepositories } =
+    useGetInventoryData();
   const { formattedAlarms, loadingAlarm } = useGetAlarmsData();
   const [selectedNamespaceOptionComp, setSelectedNamespaceOptionComp] =
     useState<string>("All Clusters");
@@ -234,6 +227,8 @@ const Dashboard: React.FC = () => {
             defaultTab={"clustersrepos"}
             selectedNamespaceOption={selectedNamespaceOptionViol}
             setSelectedNamespaceOption={setSelectedNamespaceOptionViol}
+            totalClusters={(clusterViolOptions?.length ?? 1) - 1}
+            totalRepositories={totalRepositories}
           />
         </div>
         {userRole === "admin" && (
@@ -250,6 +245,8 @@ const Dashboard: React.FC = () => {
               defaultTab={"clustersreposcomp"}
               selectedNamespaceOption={selectedNamespaceOptionComp}
               setSelectedNamespaceOption={setSelectedNamespaceOptionComp}
+              totalClusters={(clusterOptions?.length ?? 1) - 1}
+              totalRepositories={totalRepositories}
             />
           </div>
         )}

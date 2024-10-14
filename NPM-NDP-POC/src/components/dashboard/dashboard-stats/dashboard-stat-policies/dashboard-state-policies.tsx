@@ -1,21 +1,24 @@
-import styled from 'styled-components';
-import DashboardStatPoliciesCard from './dashboard-stat-policies-card';
-import { MetricEntry } from '../../types';
-import { Skeleton } from 'antd';
-import If from '../../../if';
+import styled from "styled-components";
+import DashboardStatPoliciesCard from "./dashboard-stat-policies-card";
+import { MetricEntry } from "../../types";
+import If from "../../../if";
+import { Skeleton } from "antd";
 
 interface DashboardStatPoliciesProps {
   policiesData: MetricEntry[];
   loadingPolicies: boolean;
 }
 
-const DashboardStatPolicies: React.FC<DashboardStatPoliciesProps> = ({ policiesData, loadingPolicies }) => {
+const DashboardStatPolicies: React.FC<DashboardStatPoliciesProps> = ({
+  policiesData,
+  loadingPolicies,
+}) => {
   return (
     <Container>
       <Title>Policies</Title>
       <If condition={loadingPolicies}>
         <If.True>
-          <Skeleton active style={{ width: '100%;' }} />
+          <Skeleton active style={{ width: "100%;" }} />
         </If.True>
         <If.False>
           <Content>

@@ -13,13 +13,18 @@ import {
   FileProtectOutlined,
 } from "@ant-design/icons";
 import { formatPercentage } from "../utils/utils";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
+import {
+  ComplianceItemMap,
+  NamespaceItems,
+  SegmentItem,
+} from "../../../components/dashboard/types";
 import {
   TClusterComplianceReportData,
   TNamespaceComplianceReportData,
   TReportComplianceReportData,
 } from "../types";
-import { ComplianceItemMap, NamespaceItems, SegmentItem } from "../../../components/dashboard/types";
-import TMayBe from "../../../components/connector/TMayBe";
+import { useGetKubernetesClusterInfoByClusterId } from "./useGetKubernetesClusterInfoByClusterId";
 
 export const useGetComplianceData = () => {
   const { getRepoComplianceAggMatrix } = useGetRepoComplianceAggMatrix();
@@ -29,6 +34,7 @@ export const useGetComplianceData = () => {
     useGetRepoCategoryComplianceAggMatrix();
   const { getClusterCategoryComplianceAggMatrix } =
     useGetClusterCategoryComplianceAggMatrix();
+  const { fetchData } = useGetKubernetesClusterInfoByClusterId();
   const defaultFormattedCompliance: ComplianceItemMap = {
     compliancestandards: {
       clusters: 0,
@@ -118,7 +124,7 @@ export const useGetComplianceData = () => {
         const formatedData = convertCategoryComplianceItemsMap(
           repoCategoryReport?.report,
           repoCategoryReport?.totalScore ?? 0,
-          repoCategoryReport?.totalScore ?? 0,
+          clusterCategoryReport?.totalScore ?? 0,
           clusterCategoryReport?.report,
           clusterCompAgg?.report,
           clusterCompAgg?.totalScore ?? 0,
@@ -395,7 +401,7 @@ export const useGetComplianceData = () => {
               ),
               progressPercent: formatPercentage(Number(item?.score)),
               value: formatPercentage(Number(item?.score)) + "%",
-              link: `#complianceStandardsReport/${item?.standardId}`,
+              link: `/webclient/#complianceStandardsReport/${item?.standardId}`,
             })) ?? ([] as SegmentItem[]),
         repositories: formatPercentage(repoCatScoretotal),
         repositoryItems:
@@ -411,10 +417,10 @@ export const useGetComplianceData = () => {
               ),
               progressPercent: formatPercentage(Number(item?.score)),
               value: formatPercentage(Number(item?.score)) + "%",
-              link: `#repositoryComplianceStandardReport/${item?.standardId}?standardId=${item?.standardId}`,
+              link: `/webclient/#repositoryComplianceStandardReport/${item?.standardId}?standardId=${item?.standardId}`,
             })) ?? ([] as SegmentItem[]),
-        clusterLink: "#complianceStandardsReport",
-        repoLink: "#complianceStandardsReport",
+        clusterLink: "/webclient/#complianceStandardsReport?selectedScope=clusters",
+        repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
         isLoading: false,
       },
       clustersreposcomp: {
@@ -432,10 +438,10 @@ export const useGetComplianceData = () => {
               ),
               progressPercent: formatPercentage(Number(item?.score)),
               value: formatPercentage(Number(item?.score)) + "%",
-              link: `#clusters/${item?.id}/compliance`,
+              link: `/webclient/#clusters/${item?.id}/compliance`,
             })) ?? ([] as SegmentItem[]),
-        clusterLink: "#complianceStandardsReport",
-        repoLink: "#complianceStandardsReport",
+        clusterLink: "/webclient/#complianceStandardsReport?selectedScope=clusters",
+        repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
         repositories: formatPercentage(repoScoretotal),
         repositoryItems:
           repoCompAgg
@@ -450,7 +456,7 @@ export const useGetComplianceData = () => {
               ),
               progressPercent: formatPercentage(Number(item?.score)),
               value: formatPercentage(Number(item?.score)) + "%",
-              link: `#clusters/policyReport/repositoryDetails?repo=${item?.repo}&repoId=${item?.id}`,
+              link: `/webclient/#clusters/policyReport/repositoryDetails?repo=${item?.repo}&repoId=${item?.id}`,
             })) ?? ([] as SegmentItem[]),
         namespaces: {
           clusters: formatPercentage(nspTotalScore ?? 0),
@@ -467,10 +473,10 @@ export const useGetComplianceData = () => {
                 ),
                 progressPercent: formatPercentage(Number(entry?.score)),
                 value: formatPercentage(Number(entry?.score)) + "%",
-                link: `#complianceStandardsReport`,
+                link: `/webclient/#complianceStandardsReport`,
               })) ?? [],
-          clusterLink: "#complianceStandardsReport",
-          repoLink: "#complianceStandardsReport",
+          clusterLink: "/webclient/#complianceStandardsReport?selectedScope=clusters",
+          repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
         },
         selectedCluster: {
           clusters: formatPercentage(nspTotalScore ?? 0),
@@ -487,10 +493,10 @@ export const useGetComplianceData = () => {
                 ),
                 progressPercent: formatPercentage(Number(entry?.score)),
                 value: formatPercentage(Number(entry.score)) + "%",
-                link: `#clusters/policyReport/namespace/${entry?.namespaceId}/compliance?clusterId=${entry?.id}&namespace=${entry?.name}`,
+                link: `/webclient/#clusters/policyReport/namespace/${entry?.namespaceId}/compliance?clusterId=${entry?.clusterId}&namespace=${entry?.name}`,
               })) ?? [],
-          clusterLink: `#clusters/compliance`,
-          repoLink: "#complianceStandardsReport",
+          clusterLink: `/webclient/#clusters/compliance`,
+          repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
           isLoading: false,
         },
         isLoading: false,
@@ -524,6 +530,7 @@ export const useGetComplianceData = () => {
       },
     });
     try {
+      const kubeClusterData = await fetchData(clusterId);
       const response = await getNamespaceComplianceReport(
         clusterId,
         namespaceComplianceReport
@@ -540,26 +547,32 @@ export const useGetComplianceData = () => {
                 report
                   ?.sort((a, b) => Number(a?.score) - Number(b?.score))
                   ?.splice(0, 5)
-                  ?.map((entry) => ({
-                    name: entry.name ?? "",
-                    icon: (
-                      <DeploymentUnitOutlined
-                        style={{
-                          width: "20px",
-                          height: "20px",
-                          color: "#1677FF",
-                        }}
-                      />
-                    ),
-                    progressPercent: formatPercentage(Number(entry?.score)),
-                    value: String(entry.score) + "%",
-                    link: `#clusters/policyReport/namespace/${entry?.namespaceId}/compliance?clusterId=${entry?.id}&namespace=${entry?.name}`,
-                  })) ?? [],
+                  ?.map((entry) => {
+                    const clusterServiceNamespaceId =
+                      kubeClusterData?.data?.find(
+                        (item: any) => item?.name === entry?.name
+                      )?.id ?? "";
+                    return {
+                      name: entry.name ?? "",
+                      icon: (
+                        <DeploymentUnitOutlined
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            color: "#1677FF",
+                          }}
+                        />
+                      ),
+                      progressPercent: formatPercentage(Number(entry?.score)),
+                      value: String(entry.score) + "%",
+                      link: `/webclient/#clusters/policyReport/namespace/${clusterServiceNamespaceId}/compliance`,
+                    };
+                  }) ?? [],
               clusterLink:
                 clusterId === "All Clusters"
-                  ? `#clusters/compliance`
-                  : `#clusters/${clusterId !== "All Clusters"}/compliance`,
-              repoLink: "#complianceStandardsReport",
+                  ? `/webclient/#clusters/compliance`
+                  : `/webclient/#clusters/${clusterId}/compliance`,
+              repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
             },
             isLoading: false,
           },
@@ -649,10 +662,10 @@ export const useGetComplianceData = () => {
                     ),
                     progressPercent: formatPercentage(Number(entry?.score)),
                     value: formatPercentage(Number(entry?.score)) + "%",
-                    link: `#complianceStandardsReport`,
+                    link: `/webclient/#complianceStandardsReport`,
                   })) ?? [],
-              clusterLink: "#complianceStandardsReport",
-              repoLink: "#complianceStandardsReport",
+              clusterLink: "/webclient/#complianceStandardsReport?selectedScope=clusters",
+              repoLink: "/webclient/#complianceStandardsReport?selectedScope=repos",
               isLoading: false,
             },
             isLoading: false,

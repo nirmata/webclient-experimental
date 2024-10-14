@@ -1,5 +1,5 @@
-import TMayBe from "../../../components/connector/TMayBe";
 import TNamespaceComplianceReport from "../../../nirmata-model-schema/Policies.TNamespaceComplianceReport";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
 import {
   useGetClusterCache,
   useGetNamespacesCache,
@@ -21,7 +21,6 @@ export const useGetNamespaceComplianceAggMatrix = () => {
       data?: TMayBe<TNamespaceComplianceReport[]>;
     }>
   ) => {
-    // const namespaceComplianceReport = await loadNamespaceComplianceData();
     if (Boolean(namespaceComplianceReport?.data)) {
       const uniqueNamespaceIds =
         clusterId === "All Clusters"
@@ -66,10 +65,7 @@ export const useGetNamespaceComplianceAggMatrix = () => {
               namespaceComplianceReport?.data?.map(
                 (item) => item?.standardId ?? ""
               ) ?? ([] as string[]),
-            clusterId:
-              namespaceComplianceReport?.data?.map(
-                (item) => item?.ancestors?.[1]?.id ?? ""
-              ) ?? ([] as string[]),
+            clusterId: "",
             namespaceId: "",
           };
         });
@@ -113,10 +109,9 @@ export const useGetNamespaceComplianceAggMatrix = () => {
                 (prev, curr) => Number(prev) + Number(curr?.pass ?? 0),
                 0
               ),
-            clusterId:
-              namespaceComplianceReport?.data?.map(
-                (item) => item?.ancestors?.[1]?.id ?? ""
-              ) ?? ([] as string[]),
+            clusterId: namespaceComplianceReport?.data?.find(
+              (item) => item?.ancestors?.[1]?.id === clusterId
+            )?.ancestors?.[1]?.id,
             namespaceId: namespaceComplianceReport?.data?.filter(
               (fil) => fil?.ancestors?.[1]?.id === clusterId
             )?.[0]?.parent?.id,

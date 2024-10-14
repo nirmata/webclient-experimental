@@ -1,9 +1,9 @@
+import { useGetRepoCache } from "../../../recoil/globalCache";
 import { getComplianceWithScore, getUniquekyes } from "../utils/utils";
 import { useGetRepoComplianceReport } from "./useGetRepoComplianceData";
 import { TAggCompReport } from "./useGetClusterComplianceAggMatrix";
-import TMayBe from "../../../components/connector/TMayBe";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
 import TRepositoryComplianceReport from "../../../nirmata-model-schema/Policies.TRepositoryComplianceReport";
-import { useGetRepoCache } from "../../../recoil/globalCache";
 
 export const useGetRepoComplianceAggMatrix = () => {
   const { repositoryComplianceLoading } = useGetRepoComplianceReport();
@@ -14,7 +14,6 @@ export const useGetRepoComplianceAggMatrix = () => {
       data?: TMayBe<TRepositoryComplianceReport[]>;
     }>
   ) => {
-    // const repoComplianceData = await loadRepoComplianceReport();
     if (repoComplianceData?.data) {
       const uniqueClusterIds = getUniquekyes(
         repoComplianceData?.data?.map((item) => item?.parent?.id) as string[]

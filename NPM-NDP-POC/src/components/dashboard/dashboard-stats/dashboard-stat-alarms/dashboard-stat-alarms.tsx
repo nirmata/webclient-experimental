@@ -1,21 +1,24 @@
-import styled from 'styled-components';
-import DashboardStatAlarmsCard from './dashboard-stat-alarms-card';
-import { MetricEntry } from '../../types';
-import { Skeleton } from 'antd';
-import If from '../../../if';
+import styled from "styled-components";
+import DashboardStatAlarmsCard from "./dashboard-stat-alarms-card";
+import { MetricEntry } from "../../types";
+import { Skeleton } from "antd";
+import If from "../../../if";
 
 interface DashboardStatAlarmsProps {
   alarmsData: MetricEntry[];
   loadingAlarm: boolean;
 }
 
-const DashboardStatAlarms: React.FC<DashboardStatAlarmsProps> = ({ alarmsData, loadingAlarm }) => {
+const DashboardStatAlarms: React.FC<DashboardStatAlarmsProps> = ({
+  alarmsData,
+  loadingAlarm,
+}) => {
   return (
     <Container>
       <Title>Alarms & Today’s Events</Title>
       <If condition={loadingAlarm}>
         <If.True>
-          <Skeleton active style={{ width: '100%;' }} />
+          <Skeleton active style={{ width: "100%;" }} />
         </If.True>
         <If.False>
           <Content>

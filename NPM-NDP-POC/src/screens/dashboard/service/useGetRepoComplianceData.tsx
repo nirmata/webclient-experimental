@@ -1,6 +1,6 @@
-import TMayBe from "../../../components/connector/TMayBe";
 import useQuery from "../../../components/connector/use-query";
 import TRepositoryComplianceReport from "../../../nirmata-model-schema/Policies.TRepositoryComplianceReport";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
 
 export const useGetRepoComplianceReport = () => {
   const [

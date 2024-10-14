@@ -24,3 +24,22 @@ export interface RepositoryBase {
     id: string;
   }[];
 }
+
+export type Tenant = {
+  tenantType: string;
+  product: string;
+  role: string;
+  npmOnly: string;
+  isActivated: boolean;
+  identityProvider: string;
+  features: string[];
+  tenantName: string;
+  name: string;
+  tenantId: string;
+  id: string;
+  isDisabled: boolean;
+  fullname: string;
+  tenantState: string;
+  email: string;
+  numAccounts: number;
+};

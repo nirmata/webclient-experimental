@@ -7,14 +7,13 @@ import {
   ExclamationCircleOutlined,
   WarningOutlined,
   MinusCircleOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import { convertToKFormat } from "../utils/utils";
 import {
   MModernDashboardData,
   MetricEntry,
 } from "../../../components/dashboard/types";
-import TPolicy from "../../../nirmata-model-schema/Policies.TPolicy";
-import getCookie from "../../../components/connector/get-cookie";
 
 const DEFAULT_SUMMARY = {
   policies: 0,
@@ -28,16 +27,10 @@ const DEFAULT_SUMMARY = {
 };
 
 const useGetPoliciesData = (
-  dashboardData: MModernDashboardData | undefined,
-  policyData: TPolicy[]
+  dashboardData: MModernDashboardData | undefined
 ) => {
   const [formattedPolicies, setFormattedPolicies] = useState<MetricEntry[]>([]);
   const loadingPolicies = !dashboardData;
-  const userData = getCookie("nirmata.session.userData");
-  const userRole = (
-    JSON.parse(decodeURIComponent(userData ?? "")) as { role: string }
-  )?.role;
-
   useEffect(() => {
     const fetchData = async () => {
       const dashboardDataSummary = dashboardData?.summary || DEFAULT_SUMMARY;
@@ -45,13 +38,13 @@ const useGetPoliciesData = (
       setFormattedPolicies([
         {
           title: "Policies",
-          value: convertToKFormat(policyData?.length ?? 0),
+          value: convertToKFormat(dashboardDataSummary.policies ?? 0),
           icon: (
             <SafetyCertificateOutlined
               style={{ height: "24px", width: "24px", color: "#00000073" }}
             />
           ),
-          link: userRole === "admin" ? "#workloadManagePolicies" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.fail,descend",
         },
         {
           title: "Failed",
@@ -62,7 +55,7 @@ const useGetPoliciesData = (
               style={{ height: "24px", width: "24px", color: "#f5222d" }}
             />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.fail,descend",
         },
         {
           title: "Passed",
@@ -73,7 +66,7 @@ const useGetPoliciesData = (
               style={{ height: "24px", width: "24px", color: "#52C41A" }}
             />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.pass,descend",
         },
         {
           title: "Remediations",
@@ -84,15 +77,17 @@ const useGetPoliciesData = (
               style={{ height: "24px", width: "24px", color: "#1677FF" }}
             />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=remediationsAvailable,descend",
         },
         {
           title: "Rules",
           value: convertToKFormat(dashboardDataSummary.totalRules),
           icon: (
-            <CheckCircleOutlined style={{ height: "24px", width: "24px" }} />
+            <CheckOutlined
+              style={{ height: "24px", width: "24px", color: "#00000073" }}
+            />
           ),
-          link: userRole === "admin" ? "#workloadManagePolicies" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.fail,descend",
         },
         {
           title: "Errors",
@@ -103,7 +98,7 @@ const useGetPoliciesData = (
               style={{ height: "24px", width: "24px", color: "#FF4D4F" }}
             />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.error,descend",
         },
         {
           title: "Warnings",
@@ -114,7 +109,7 @@ const useGetPoliciesData = (
               style={{ height: "24px", width: "24px", color: "#FAAD14" }}
             />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.warn,descend",
         },
         {
           title: "Skipped",
@@ -123,7 +118,7 @@ const useGetPoliciesData = (
           icon: (
             <MinusCircleOutlined style={{ height: "24px", width: "24px" }} />
           ),
-          link: userRole === "admin" ? "#clustersPolicyReport/categories" : "",
+          link: "/webclient/#clustersPolicyReport/categories?sort=resultCount.skip,descend",
         },
       ]);
     };

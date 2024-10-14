@@ -1,4 +1,4 @@
-import TMayBe from "../../../components/connector/TMayBe";
+import TMayBe from "../../../nirmata-model-schema/TMayBe";
 import useQuery from "../../../components/connector/use-query";
 import { ClusterPolicyReportEntry } from "../../../components/dashboard/types";
 

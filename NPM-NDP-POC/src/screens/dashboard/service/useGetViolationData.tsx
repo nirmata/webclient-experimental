@@ -21,9 +21,9 @@ import {
   MModernDashboardData,
   ViolationItemsMap,
 } from "../../../components/dashboard/types";
-import { ResourceKindTag } from "../../../components/componentsV2/ResourceKind/resource-kind";
-import { useGetClusterCache } from "../../../recoil/globalCache";
+import capitalize from "../../../components/policy-report/capitalize";
 import { getSourceIcon } from "../../../common/get-repo-source-icon";
+import { ResourceKindTag } from "../../../components/policy-report/resource-kind-tag";
 
 export type TOptions = { label: string; value: string };
 export type NamespaceCompliance = {
@@ -40,7 +40,6 @@ export const useGetViolationData = (
   dashboardData: MModernDashboardData | null,
   policyReportNamespaceTableData: ClusterPolicyReportEntry[] | null
 ) => {
-  const clusterList = useGetClusterCache();
   const [clusterViolOptions, setClusterViolOptions] = useState<TOptions[]>([
     { label: "All Clusters", value: "All Clusters" },
   ]);
@@ -49,16 +48,18 @@ export const useGetViolationData = (
 
   const fetchData = useCallback(async () => {
     try {
-      if (policyReportNamespaceTableData && clusterId === "All Clusters") {
+      if (policyReportClusterTableData && clusterId === "All Clusters") {
         const uniqueClusterIds = getUniquekyes(
-          policyReportNamespaceTableData?.map(
+          policyReportClusterTableData?.map(
             (item) => item?._id?.cluster ?? ""
           ) ?? []
         );
 
         const clusterOptions = uniqueClusterIds.map((item) => ({
           label:
-            clusterList?.find((cluster) => cluster.id === item)?.name ?? "",
+            policyReportClusterTableData?.find(
+              (cluster) => cluster?._id?.cluster === item
+            )?.clusterName ?? "",
           value: item,
         }));
 
@@ -103,7 +104,7 @@ export const useGetViolationData = (
         dashboardData?.["repo-by-provider"] ?? {}
       )
         .map(([key, value]) => {
-          const provider = extractProviderName(key);
+          const provider = capitalize(extractProviderName(key) ?? "");
           const isFailCount = key.toLowerCase().includes("failcount");
           return {
             provider,
@@ -112,16 +113,16 @@ export const useGetViolationData = (
           };
         })
         .reduce((acc, { provider, failCount, totalCount }) => {
-          if (!acc[provider]) {
-            acc[provider] = {
-              name: provider,
-              icon: getSourceIcon(provider),
+          if (!acc[provider ?? ""]) {
+            acc[provider ?? ""] = {
+              name: provider ?? "",
+              icon: getSourceIcon(provider?.toLowerCase() ?? ""),
               failCount: 0,
               totalCount: 0,
             };
           }
-          acc[provider].failCount += failCount;
-          acc[provider].totalCount += totalCount;
+          acc[provider ?? ""].failCount += failCount;
+          acc[provider ?? ""].totalCount += totalCount;
           return acc;
         }, {} as { [key: string]: { name: string; icon: JSX.Element; failCount: number; totalCount: number } });
       let violationItemsMap: ViolationItemsMap = {
@@ -169,45 +170,51 @@ export const useGetViolationData = (
             ),
             clusterItems: Object.entries(
               dashboardData?.["cloud provider violations"] ?? {}
-            ).map(([provider, item]) => ({
-              name: CLOUD_PROVIDER_NAMES[provider] || provider,
-              icon: (
-                <img
-                  src={
-                    CLOUD_PROVIDER_LOGOS[provider] ||
-                    CLOUD_PROVIDER_LOGOS["other"]
-                  }
-                  alt={CLOUD_PROVIDER_NAMES[provider] || "Other"}
-                  style={{ width: "20px", height: "20px" }}
-                />
-              ),
-              progressPercent: calculatePercentage(
-                item.failCount,
-                item.totalCount
-              ),
-              value: String(
-                convertToKFormat(item.failCount) +
-                  " / " +
-                  convertToKFormat(item.totalCount)
-              ),
-            })),
+            )
+              .map(([provider, item]) => ({
+                name: CLOUD_PROVIDER_NAMES[provider] || provider,
+                icon: (
+                  <img
+                    src={
+                      CLOUD_PROVIDER_LOGOS[provider] ||
+                      CLOUD_PROVIDER_LOGOS["other"]
+                    }
+                    alt={CLOUD_PROVIDER_NAMES[provider] || "Other"}
+                    style={{ width: "20px", height: "20px" }}
+                  />
+                ),
+                progressPercent: calculatePercentage(
+                  item.failCount,
+                  item.totalCount
+                ),
+                value: String(
+                  convertToKFormat(item.failCount) +
+                    " / " +
+                    convertToKFormat(item.totalCount)
+                ),
+              }))
+              .sort((a, b) => b.progressPercent - a.progressPercent),
             repositories: formatPercentage(
               dashboardData?.["all-repo-violation-percentage"] ?? 0
             ),
-            repositoryItems: Object.values(repositoryItems).map((item) => ({
-              ...item,
-              progressPercent: calculatePercentage(
-                item.failCount,
-                item.totalCount
-              ),
-              value: String(
-                convertToKFormat(item.failCount) +
-                  " / " +
-                  convertToKFormat(item.totalCount)
-              ),
-            })),
-            clusterLink: "#clustersPolicyReport/clusters",
-            repoLink: "#clustersPolicyReport/repositories",
+            repositoryItems: Object.values(repositoryItems)
+              .map((item) => ({
+                ...item,
+                progressPercent: calculatePercentage(
+                  item.failCount,
+                  item.totalCount
+                ),
+                value: String(
+                  convertToKFormat(item.failCount) +
+                    " / " +
+                    convertToKFormat(item.totalCount)
+                ),
+              }))
+              .sort((a, b) => b.progressPercent - a.progressPercent),
+            clusterLink:
+              "/webclient/#clustersPolicyReport/clusters?sort=resultCount.fail,descend", // modified
+            repoLink:
+              "/webclient/#clustersPolicyReport/repositories?sort=result.fail,descend", // modified
             isLoading: false,
           },
           clustersrepos: {
@@ -215,40 +222,15 @@ export const useGetViolationData = (
               dashboardData?.["all-cluster-violation-percentage"] ?? 0
             ),
             clusterItems:
-              violationClusterData?.slice(0, 5)?.map((entry) => ({
-                name: entry.clusterName ?? "",
-                icon: (
-                  <DeploymentUnitOutlined
-                    style={{ width: "20px", height: "20px", color: "#1677FF" }}
-                  />
-                ),
-                progressPercent: entry.failPercentage,
-                value: String(
-                  convertToKFormat(entry.resultCount?.fail) +
-                    " / " +
-                    convertToKFormat(entry?.total)
-                ),
-                link: `#clusters/policyReport/KubernetesCluster/${entry?._id?.cluster}/results`,
-              })) ?? [],
-            clusterLink: "#clustersPolicyReport/clusters",
-            repoLink: "#clustersPolicyReport/repositories",
-            namespaces: {
-              clusters: formatPercentage(
-                dashboardData?.["all-namespace-violation-percentage"] ?? 0
-              ),
-              clusterItems:
-                violationNamespaceData?.slice(0, 5)?.map((entry) => ({
-                  name: entry?._id?.namespace ?? "",
+              violationClusterData
+                ?.slice(0, 5)
+                ?.map((entry) => ({
+                  name: entry.clusterName ?? "",
                   icon: (
-                    <ResourceKindTag
-                      kind={"namespace"}
+                    <DeploymentUnitOutlined
                       style={{
-                        textAlign: "center",
-                        display: "flex",
-                        gap: "4px",
-                        width: "30px",
-                        height: "22px",
-                        justifyContent: "center",
+                        width: "20px",
+                        height: "20px",
                         color: "#1677FF",
                       }}
                     />
@@ -259,49 +241,95 @@ export const useGetViolationData = (
                       " / " +
                       convertToKFormat(entry?.total)
                   ),
-                  link: `#clusters/policyReport/namespace/${entry?.namespaceId}/findings?clusterId=${entry?._id?.cluster}&namespace=${entry?._id?.namespace}&status=fail`,
-                })) ?? [],
-              clusterLink: "#clustersPolicyReport/namespaces",
-              repoLink: "#clustersPolicyReport/repositories",
+                  link: `/webclient/#clusters/policyReport/KubernetesCluster/${entry?._id?.cluster}/results`, // modified
+                }))
+                ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
+            clusterLink:
+              "/webclient/#clustersPolicyReport/clusters?sort=resultCount.fail,descend", // modified
+            repoLink:
+              "/webclient/#clustersPolicyReport/repositories?sort=result.fail,descend", // modified
+            namespaces: {
+              clusters: formatPercentage(
+                dashboardData?.["all-namespace-violation-percentage"] ?? 0
+              ),
+              clusterItems:
+                violationNamespaceData
+                  ?.filter((entry) => Boolean(entry?.namespaceId))
+                  ?.slice(0, 5)
+                  ?.map((entry) => ({
+                    name: entry?._id?.namespace ?? "",
+                    icon: (
+                      <ResourceKindTag
+                        kind={"namespace"}
+                        style={{
+                          textAlign: "center",
+                          display: "flex",
+                          gap: "4px",
+                          width: "30px",
+                          height: "22px",
+                          justifyContent: "center",
+                          color: "#1677FF",
+                        }}
+                      />
+                    ),
+                    progressPercent: entry.failPercentage,
+                    value: String(
+                      convertToKFormat(entry.resultCount?.fail) +
+                        " / " +
+                        convertToKFormat(entry?.total)
+                    ),
+                    link: `/webclient/#clusters/policyReport/namespace/${entry?.namespaceId}/findings?clusterId=${entry?._id?.cluster}&namespace=${entry?._id?.namespace}&status=fail`, // modified
+                  }))
+                  ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
+              clusterLink:
+                "/webclient/#clustersPolicyReport/namespaces?sort=resultCount.fail,descend", // modified
+              repoLink:
+                "/webclient/#clustersPolicyReport/repositories?sort=result.fail,descend", // modified
               isLoading: false,
             },
             selectedCluster: {
               clusters: formatPercentage(nspTotalScore ?? 0),
               clusterItems:
-                temp?.slice(0, 5)?.map((entry) => ({
-                  name: entry.name ?? "",
-                  icon: (
-                    <ResourceKindTag
-                      kind={"namespace"}
-                      style={{
-                        textAlign: "center",
-                        display: "flex",
-                        gap: "4px",
-                        width: "30px",
-                        height: "22px",
-                        justifyContent: "center",
-                        color: "#1677FF",
-                      }}
-                    />
-                  ),
-                  progressPercent: formatPercentage(entry?.fail ?? 0),
-                  value: String(
-                    convertToKFormat(entry.failCount) +
-                      " / " +
-                      convertToKFormat(entry?.total)
-                  ),
-                  link: `#clusters/policyReport/namespace/${entry?.namespaceId}/findings?clusterId=${entry?.clusterId}&namespace=${entry?.namespace}&status=fail`,
-                })) ?? [],
-              clusterLink: `#clusters/policyReport/KubernetesCluster/${clusterId}/results`,
-              repoLink: "#clustersPolicyReport/repositories",
+                temp
+                  ?.filter((entry) => Boolean(entry?.namespaceId))
+                  ?.slice(0, 5)
+                  ?.map((entry) => ({
+                    name: entry.name ?? "",
+                    icon: (
+                      <ResourceKindTag
+                        kind={"namespace"}
+                        style={{
+                          textAlign: "center",
+                          display: "flex",
+                          gap: "4px",
+                          width: "30px",
+                          height: "22px",
+                          justifyContent: "center",
+                          color: "#1677FF",
+                        }}
+                      />
+                    ),
+                    progressPercent: formatPercentage(entry?.fail ?? 0),
+                    value: String(
+                      convertToKFormat(entry.failCount) +
+                        " / " +
+                        convertToKFormat(entry?.total)
+                    ),
+                    link: `/webclient/#clusters/policyReport/namespace/${entry?.namespaceId}/findings?clusterId=${entry?.clusterId}&namespace=${entry?.namespace}&status=fail`, // modified
+                  }))
+                  ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
+              clusterLink: `/webclient/#clusters/policyReport/KubernetesCluster/${clusterId}/results`, // modified
+              repoLink:
+                "/webclient/#clustersPolicyReport/repositories?sort=result.fail,descend", // modified
               isLoading: false,
             },
             repositories: formatPercentage(
               dashboardData?.["all-repo-violation-percentage"] ?? 0
             ),
             repositoryItems:
-              repoVoilationInOrder?.slice(0, 5)?.map((item) => {
-                return {
+              repoVoilationInOrder
+                ?.slice(0, 5)
+                ?.map((item) => ({
                   name: extractRepoName(item.sourceId) ?? "",
                   icon: (
                     <DatabaseOutlined
@@ -321,9 +349,9 @@ export const useGetViolationData = (
                       " / " +
                       convertToKFormat(item?.totalCount)
                   ),
-                  link: `#clusters/policyReport/repositoryDetails?repo=${item?.sourceId}`,
-                };
-              }) ?? [],
+                  link: `/webclient/#clusters/policyReport/repositoryDetails?repo=${item?.sourceId}`, // modified
+                }))
+                ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
             isLoading: false,
           },
           policycategories: {
@@ -331,8 +359,9 @@ export const useGetViolationData = (
               dashboardData?.["all-cluster-violation-percentage"] ?? 0
             ),
             clusterItems:
-              dashboardData?.summaryByCategoryForCluster?.report.map(
-                (item) => ({
+              dashboardData?.summaryByCategoryForCluster?.report
+                ?.slice(0, 5)
+                ?.map((item) => ({
                   name: item.category,
                   icon: (
                     <SafetyCertificateOutlined
@@ -349,15 +378,16 @@ export const useGetViolationData = (
                       " / " +
                       convertToKFormat(item?.totalCount)
                   ),
-                  link: `#clusters/policyReport/category/${item?.category}`,
-                })
-              ) ?? [],
+                  link: `/webclient/#clusters/policyReport/category/${item?.category}`, // modified
+                }))
+                ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
             repositories: formatPercentage(
               dashboardData?.["all-repo-violation-percentage"] ?? 0
             ),
             repositoryItems:
-              dashboardData?.summaryByCategoryForRepository?.report.map(
-                (item) => ({
+              dashboardData?.summaryByCategoryForRepository?.report
+                ?.slice(0, 5)
+                ?.map((item) => ({
                   name: item.category,
                   icon: (
                     <SafetyCertificateOutlined
@@ -374,11 +404,13 @@ export const useGetViolationData = (
                       " / " +
                       convertToKFormat(item?.totalCount)
                   ),
-                  link: `#clusters/policyReport/category/${item?.category}`,
-                })
-              ) ?? [],
-            clusterLink: "#clustersPolicyReport/clusters",
-            repoLink: "#clustersPolicyReport/repositories",
+                  link: `/webclient/#clusters/policyReport/category/${item?.category}`, // modified
+                }))
+                ?.sort((a, b) => b.progressPercent - a.progressPercent) ?? [],
+            clusterLink:
+              "/webclient/#clustersPolicyReport/clusters?sort=resultCount.fail,descend", // modified
+            repoLink:
+              "/webclient/#clustersPolicyReport/repositories?sort=result.fail,descend", // modified
             isLoading: false,
           },
         };
