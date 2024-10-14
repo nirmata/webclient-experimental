@@ -1,0 +1,43 @@
+/* Nirmata */
+/* Auto-generated schema definition! */
+
+import TMayBe from './TMayBe';
+import TModelBase from './TModelBase';
+import TAlarm from './Catalog.TAlarm';
+
+export type TField =
+  | 'additionalProperties'
+  | 'alarms'
+  | 'ancestors'
+  | 'apiVersion'
+  | 'createdBy'
+  | 'createdOn'
+  | 'id'
+  | 'isNamespaced'
+  | 'kind'
+  | 'labels'
+  | 'modelIndex'
+  | 'modifiedBy'
+  | 'modifiedOn'
+  | 'name'
+  | 'parent'
+  | 'parent'
+  | 'properties'
+  | 'service'
+  | 'uri';
+
+type TGenericResource = Omit<TModelBase, 'service' | 'modelIndex'> & {
+  additionalProperties?: TMayBe<Record<string, TMayBe<string | number | boolean | object>>>;
+  alarms?: TMayBe<TMayBe<TAlarm>[]>;
+  apiVersion?: TMayBe<string>;
+  isNamespaced?: TMayBe<boolean>;
+  kind?: TMayBe<string>;
+  labels?: TMayBe<Record<string, TMayBe<string>>>;
+  modelIndex?: 'GenericResource';
+  name?: TMayBe<string>;
+  parent?: TMayBe<TModelBase>;
+  properties?: TMayBe<Record<string, TMayBe<string | number | boolean | object>>>;
+  service?: 'catalog';
+};
+
+export default TGenericResource;

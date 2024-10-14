@@ -1,0 +1,36 @@
+
+export const CLOUD_PROVIDER_LOGOS: Record<string, string> = {
+    other: 'img/cloud.png',
+    eks: 'img/awscluster.png',
+    aws: 'img/awscluster.png',
+    gke: 'img/gke.png',
+    googlecompute: 'img/gke.png',
+    aks: 'img/azure.png',
+    azure: 'img/azure.png',
+    openshift: 'img/openshift.png',
+    nutanix: 'img/nutanix.png',
+    oke: 'img/oke.png',
+    openstack: 'img/openstack.png',
+    digitalocean: 'img/digitalocean.png',
+    pivotal: 'img/pivotal.png',
+    softLayer: 'img/softLayer.png',
+    vsphere: 'img/vmware.png',
+};
+
+export const CLOUD_PROVIDER_NAMES: Record<string, string> = {
+    other: 'Other',
+    eks: 'AWS',
+    aks: 'Azure',
+    gke: 'GCP',
+    openshift: 'Openshift',
+    oke: 'OKE',
+    aws: 'AWS',
+    vsphere: 'vSphere',
+    openstack: 'OpenStack',
+    azure: 'Azure',
+    digitalocean: 'DigitalOcean',
+    softLayer: 'SoftLayer',
+    pivotal: 'Pivotal',
+    googlecompute: 'GCP',
+    nutanix: 'Nutanix',
+};
